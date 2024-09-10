@@ -1,0 +1,55 @@
+repositories {
+    maven { url 'https://jitpack.io' }
+    maven { url 'https://repo.codemc.io/repository/maven-snapshots/' }
+    maven { url 'https://repo.clojars.org/' }
+    maven { url 'https://repo.william278.net/snapshots' }
+    maven { url 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
+}
+
+dependencies {
+    implementation project(":api")
+    compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT'
+
+    // Support mini message format
+    compileOnly 'net.kyori:adventure-text-minimessage:4.17.0'
+    compileOnly 'net.kyori:adventure-api:4.17.0'
+    compileOnly 'net.kyori:adventure-platform-bukkit:4.3.3'
+
+    implementation 'com.github.puregero:multilib:1.2.4' // Folia & Shreddedpaper support
+
+    implementation 'net.william278:desertwell:2.0.4' // Update Checker & About Page
+
+    // Cross Server Support
+    compileOnly 'redis.clients:jedis:5.1.0'
+    compileOnly 'org.apache.commons:commons-pool2:2.12.0'
+
+    compileOnly 'me.clip:placeholderapi:2.11.6' // Placeholder support
+
+    // Database
+    implementation 'com.zaxxer:HikariCP:5.1.0'
+    compileOnly 'org.xerial:sqlite-jdbc:3.45.2.0'
+    compileOnly 'com.mysql:mysql-connector-j:8.3.0'
+    compileOnly('org.mariadb.jdbc:mariadb-java-client:3.3.3') {
+        exclude group: '*', module: '*'
+    }
+    compileOnly 'org.mongodb:mongodb-driver-sync:5.0.0'
+
+    implementation 'net.wesjd:anvilgui:1.9.6-SNAPSHOT' // Text Input
+
+    implementation 'de.exlll:configlib-yaml:4.5.0' // config
+
+    compileOnly 'com.github.MilkBowl:VaultAPI:1.7' // Economy Hook
+
+    // Extra Hooks
+    compileOnly 'com.influxdb:influxdb-client-java:3.3.0' // InfluxDB logging
+}
+
+shadowJar {
+    relocate 'com.zaxxer', 'info.preva1l.fadfc.libs.hikari'
+    relocate 'net.wesjd', 'info.preva1l.fadfc.libs.anvilgui'
+    relocate 'com.github.puregero.multilib', 'info.preva1l.fadfc.libs.multilib'
+    relocate 'de.exlll.configlib', 'info.preva1l.fadfc.libs.config'
+
+    archiveClassifier.set('')
+    //minimize()
+}

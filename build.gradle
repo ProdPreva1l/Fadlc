@@ -1,0 +1,91 @@
+plugins {
+    id 'java'
+    id 'io.github.goooler.shadow' version '8.1.7'
+}
+
+group = 'info.preva1l'
+version = "1.0.0"
+
+allprojects {
+    apply plugin: 'io.github.goooler.shadow'
+    apply plugin: 'maven-publish'
+    apply plugin: 'java'
+
+    sourceCompatibility = 17
+    targetCompatibility = 17
+
+    compileJava.options.encoding = 'UTF-8'
+    javadoc.options.encoding = 'UTF-8'
+    javadoc.options.addStringOption('Xdoclint:none', '-quiet')
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven { url 'https://oss.sonatype.org/content/groups/public/' }
+        maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
+    }
+
+    dependencies {
+        compileOnly 'org.jetbrains:annotations:24.0.0'
+        compileOnly 'org.projectlombok:lombok:1.18.32'
+        annotationProcessor 'org.projectlombok:lombok:1.18.32'
+        annotationProcessor 'org.jetbrains:annotations:24.0.0'
+
+        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.2'
+        testImplementation 'org.junit.jupiter:junit-jupiter-params:5.10.2'
+        testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.10.2'
+
+        testCompileOnly 'org.jetbrains:annotations:24.1.0'
+        testCompileOnly 'org.projectlombok:lombok:1.18.32'
+        testAnnotationProcessor 'org.projectlombok:lombok:1.18.32'
+    }
+
+    test {
+        useJUnitPlatform()
+    }
+
+    processResources {
+        def props = [version: rootProject.version]
+        inputs.properties props
+        filteringCharset 'UTF-8'
+        filesMatching('plugin.yml') {
+            expand props
+        }
+    }
+}
+
+subprojects {
+    version rootProject.version
+    archivesBaseName = "${rootProject.name}-${project.name.capitalize()}"
+
+    shadowJar {
+        destinationDirectory.set(file("$rootDir/target"))
+        archiveClassifier.set('')
+        //minimize()
+    }
+
+    task sourceJar(type: Jar) {
+        from sourceSets.main.allSource
+        archiveClassifier.set('sources')
+    }
+
+    task javadocJar(type: Jar) {
+        from javadoc
+        archiveClassifier.set('javadoc')
+    }
+
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                artifact shadowJar
+                artifact(tasks.named('sourceJar'))
+                artifact(tasks.named('javadocJar'))
+            }
+        }
+    }
+
+    jar.dependsOn shadowJar
+    clean.delete "$rootDir/target"
+}
+
+logger.lifecycle("Building Fadlc ${version}")

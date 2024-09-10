@@ -1,0 +1,10 @@
+name: Fadlc
+description: Finally a Decent Land Claim
+author: Preva1l
+version: '${version}'
+main: info.preva1l.fadlc.Fadlc
+api-version: 1.16
+
+permissions:
+  fadlc.claim:
+    default: true
