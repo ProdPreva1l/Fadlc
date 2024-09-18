@@ -4,6 +4,7 @@ import info.preva1l.fadlc.Fadlc;
 import info.preva1l.fadlc.commands.lib.BasicCommand;
 import info.preva1l.fadlc.commands.lib.BasicSubCommand;
 import info.preva1l.fadlc.config.Lang;
+import info.preva1l.fadlc.models.user.BukkitUser;
 import info.preva1l.fadlc.models.user.CommandUser;
 import info.preva1l.fadlc.models.user.ConsoleUser;
 import info.preva1l.fadlc.utils.CommandMapUtil;
@@ -86,7 +87,7 @@ public final class CommandManager {
             }
 
 
-            CommandUser commandUser = sender instanceof Player ? UserManager.getInstance().getUser(sender.getName()).get() : new ConsoleUser(Fadlc.i().getAudiences().console());
+            CommandUser commandUser = sender instanceof Player ? (BukkitUser) UserManager.getInstance().getUser(sender.getName()).get() : new ConsoleUser(Fadlc.i().getAudiences().console());
 
             if (this.basicCommand.isAsync()) {
                 TaskManager.runAsync(Fadlc.i(), () -> basicCommand.execute(commandUser, args));
@@ -98,7 +99,7 @@ public final class CommandManager {
 
         @NotNull
         public List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
-            CommandUser commandUser = sender instanceof Player ? UserManager.getInstance().getUser(sender.getName()).get() : new ConsoleUser(Fadlc.i().getAudiences().console());
+            CommandUser commandUser = sender instanceof Player ? (BukkitUser) UserManager.getInstance().getUser(sender.getName()).get() : new ConsoleUser(Fadlc.i().getAudiences().console());
 
             // Primary argument
             if (args.length <= 1) {

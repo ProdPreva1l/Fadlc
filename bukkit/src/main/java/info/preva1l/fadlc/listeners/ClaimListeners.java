@@ -8,8 +8,7 @@ import info.preva1l.fadlc.models.claim.IClaim;
 import info.preva1l.fadlc.models.claim.IProfileGroup;
 import info.preva1l.fadlc.models.claim.settings.IProfileSetting;
 import info.preva1l.fadlc.models.claim.settings.ProfileSetting;
-import info.preva1l.fadlc.models.user.BukkitUser;
-import info.preva1l.fadlc.models.user.User;
+import info.preva1l.fadlc.models.user.OnlineUser;
 import lombok.AllArgsConstructor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -30,13 +29,14 @@ public class ClaimListeners implements Listener {
      * @return true if the action is allowed false if not
      */
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    private boolean isActionAllowed(User user, ILoc location, IProfileSetting setting) {
+    private boolean isActionAllowed(OnlineUser user, ILoc location, IProfileSetting setting) {
         Optional<IClaim> claimAtLocation = claimManager.getClaimAt(location);
         if (claimAtLocation.isEmpty()) {
             return true;
         }
 
         IProfileGroup group = user.getTrustedClaims().get(claimAtLocation.get());
+
         if (group == null) {
             return true;
         }
@@ -46,8 +46,8 @@ public class ClaimListeners implements Listener {
 
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
-        BukkitUser user = UserManager.getInstance().getUser(event.getPlayer().getUniqueId()).orElseThrow();
-        if (!isActionAllowed(user, Loc.fromBukkit(event.getBlock().getLocation()), ProfileSetting.PLACE_BLOCKS)) {
+        OnlineUser user = UserManager.getInstance().getUser(event.getPlayer().getUniqueId()).orElseThrow();
+        if (isActionAllowed(user, Loc.fromBukkit(event.getBlock().getLocation()), ProfileSetting.PLACE_BLOCKS)) {
             return;
         }
         event.setCancelled(true);
@@ -56,8 +56,8 @@ public class ClaimListeners implements Listener {
 
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
-        BukkitUser user = UserManager.getInstance().getUser(event.getPlayer().getUniqueId()).orElseThrow();
-        if (!isActionAllowed(user, Loc.fromBukkit(event.getBlock().getLocation()), ProfileSetting.BREAK_BLOCKS)) {
+        OnlineUser user = UserManager.getInstance().getUser(event.getPlayer().getUniqueId()).orElseThrow();
+        if (isActionAllowed(user, Loc.fromBukkit(event.getBlock().getLocation()), ProfileSetting.BREAK_BLOCKS)) {
             return;
         }
         event.setCancelled(true);

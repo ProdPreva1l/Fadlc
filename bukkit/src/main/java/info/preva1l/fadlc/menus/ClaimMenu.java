@@ -7,10 +7,10 @@ import info.preva1l.fadlc.managers.UserManager;
 import info.preva1l.fadlc.menus.lib.FastInv;
 import info.preva1l.fadlc.menus.lib.ItemBuilder;
 import info.preva1l.fadlc.models.ChunkStatus;
-import info.preva1l.fadlc.models.ClaimChunk;
 import info.preva1l.fadlc.models.IClaimChunk;
 import info.preva1l.fadlc.models.claim.IClaim;
-import info.preva1l.fadlc.models.user.User;
+import info.preva1l.fadlc.models.user.OnlineUser;
+import info.preva1l.fadlc.utils.Logger;
 import info.preva1l.fadlc.utils.Sounds;
 import info.preva1l.fadlc.utils.Text;
 import net.kyori.adventure.audience.Audience;
@@ -27,13 +27,17 @@ import java.util.Optional;
 public class ClaimMenu extends FastInv {
     private final Player player;
     private final Audience audience;
-    private final User user;
+    private final OnlineUser user;
 
     public ClaimMenu(Player player) {
-        super(54, LayoutManager.MenuType.CLAIM);
+        super(54, Text.legacyMessage("&8Claim Chunks"), LayoutManager.MenuType.CLAIM);
         this.player = player;
         this.audience = Fadlc.i().getAudiences().player(player);
         this.user = UserManager.getInstance().getUser(player.getUniqueId()).orElseThrow();
+
+
+        user.getClaim().getClaimedChunks().forEach((c, e) -> Logger.info(c.toString()));
+        placeChunkItems();
     }
 
     private void placeChunkItems() {
@@ -68,7 +72,10 @@ public class ClaimMenu extends FastInv {
     }
 
     private void claimChunk(IClaimChunk chunk) {
+        chunk.setClaimedSince(System.currentTimeMillis());
+        chunk.setProfileId(1);
         user.getClaim().claimChunk(chunk);
+        ClaimManager.getInstance().cacheChunk(chunk);
         ClaimManager.getInstance().updateClaim(user.getClaim());
         placeChunkItems();
         Sounds.success(player);
@@ -96,8 +103,9 @@ public class ClaimMenu extends FastInv {
             case BLOCKED_WORLD_GUARD -> new ItemBuilder(Material.RED_STAINED_GLASS_PANE);
         }
 
-        if (index == 23) {
-            itemBuilder = new ItemBuilder(Material.NETHER_STAR).addLore(Text.legacyMessage("&d&iYou are standing in this chunk."));
+        if (index == 22) {
+            itemBuilder = new ItemBuilder(Material.NETHER_STAR)
+                    .addLore(Text.legacyMessage("&d&oYou are standing in this chunk."));
         }
 
         return itemBuilder;
@@ -110,39 +118,38 @@ public class ClaimMenu extends FastInv {
                 Optional<IClaim> claim = ClaimManager.getInstance().getClaimAt(chunk);
                 yield itemBuilder.name(Text.legacyMessage(claim.orElseThrow().getProfile(chunk).orElseThrow().getName()));
             }
-            case WORLD_DISABLED -> itemBuilder.name(Text.legacyMessage("&c&iClaiming is disabled in this world!"));
-            case BLOCKED_ZONE_BORDER -> itemBuilder.name(Text.legacyMessage("&c&iYou cannot claim near the border!"));
-            case BLOCKED_WORLD_GUARD -> itemBuilder.name(Text.legacyMessage("&c&iYou cannot claim in protected areas!"));
+            case WORLD_DISABLED -> itemBuilder.name(Text.legacyMessage("&c&oClaiming is disabled in this world!"));
+            case BLOCKED_ZONE_BORDER -> itemBuilder.name(Text.legacyMessage("&c&oYou cannot claim near the border!"));
+            case BLOCKED_WORLD_GUARD -> itemBuilder.name(Text.legacyMessage("&c&oYou cannot claim in protected areas!"));
         };
     }
 
     private ItemBuilder chunkLore(ItemBuilder itemBuilder, IClaimChunk chunk) {
         return switch (chunk.getStatus()) {
-            case CLAIMABLE -> itemBuilder.lore(List.of(
+            case CLAIMABLE -> itemBuilder.addLore(Text.legacyList(List.of(
                     "&7&l‣ &3Chunk: &f%s, %s".formatted(chunk.getChunkX(), chunk.getChunkZ()),
                     "&7&l‣ &3Cost: &f1 Claim Chunk &7(You have: &f%s&7)".formatted(user.getAvailableChunks()),
                     "",
-                    "&a→ Click &3to claim this chunk!"));
+                    "&a→ Click &3to claim this chunk!")));
             case ALREADY_CLAIMED -> {
                 Optional<IClaim> claim = ClaimManager.getInstance().getClaimAt(chunk);
                 if (claim.orElseThrow().getOwner().equals(user)) {
-                    yield itemBuilder.lore(List.of(
+                    yield itemBuilder.addLore(Text.legacyList(List.of(
                             "&7&l‣ &3Owner: &f%s".formatted(claim.orElseThrow().getOwner().getName()),
                             "&7&l‣ &3Chunk: &f%s, %s".formatted(chunk.getChunkX(), chunk.getChunkZ()),
                             "&7&l‣ &3Claimed: &f%s".formatted(chunk.getClaimedSince()),
                             "",
-                            "&a→ Click &3to manage this claim!"));
+                            "&a→ Click &3to manage this claim!")));
                 }
-                yield itemBuilder.lore(List.of(
+                yield itemBuilder.addLore(Text.legacyList(List.of(
                         "&7&l‣ &3Owner: &f%s".formatted(claim.orElseThrow().getOwner().getName()),
                         "&7&l‣ &3Chunk: &f%s, %s".formatted(chunk.getChunkX(), chunk.getChunkZ()),
                         "&7&l‣ &3Claimed: &f%s".formatted(chunk.getClaimedSince()),
-                        "",
-                        ""));
+                        "")));
             }
-            case WORLD_DISABLED -> itemBuilder.name(Text.legacyMessage("&c&iClaiming is disabled in this world!"));
-            case BLOCKED_ZONE_BORDER -> itemBuilder.name(Text.legacyMessage("&c&iYou cannot claim near the border!"));
-            case BLOCKED_WORLD_GUARD -> itemBuilder.name(Text.legacyMessage("&c&iYou cannot claim in protected areas!"));
+            case WORLD_DISABLED -> itemBuilder.name(Text.legacyMessage("&c&oClaiming is disabled in this world!"));
+            case BLOCKED_ZONE_BORDER -> itemBuilder.name(Text.legacyMessage("&c&oYou cannot claim near the border!"));
+            case BLOCKED_WORLD_GUARD -> itemBuilder.name(Text.legacyMessage("&c&oYou cannot claim in protected areas!"));
         };
     }
 
@@ -156,7 +163,8 @@ public class ClaimMenu extends FastInv {
                 for (int z = -2; z <= 2; z++) { // normal z-order for SOUTH
                     for (int x = -4; x <= 4; x++) {
                         int chunkX = playerChunkX + x, chunkZ = playerChunkZ + z;
-                        chunkList.add(ClaimChunk.fromBukkit(player.getWorld().getChunkAt(chunkX, chunkZ)));
+                        chunkList.add(ClaimManager.getInstance()
+                                .getChunkAtChunk(chunkX, chunkZ, player.getWorld().getName()));
                     }
                 }
                 break;
@@ -164,7 +172,8 @@ public class ClaimMenu extends FastInv {
                 for (int x = 2; x >= -2; x--) {
                     for (int z = -4; z <= 4; z++) {
                         int chunkX = playerChunkX + x, chunkZ = playerChunkZ + z;
-                        chunkList.add(ClaimChunk.fromBukkit(player.getWorld().getChunkAt(chunkX, chunkZ)));
+                        chunkList.add(ClaimManager.getInstance()
+                                .getChunkAtChunk(chunkX, chunkZ, player.getWorld().getName()));
                     }
                 }
                 break;
@@ -172,7 +181,8 @@ public class ClaimMenu extends FastInv {
                 for (int z = 2; z >= -2; z--) { // reverse z-order for NORTH
                     for (int x = 4; x >= -4; x--) {
                         int chunkX = playerChunkX + x, chunkZ = playerChunkZ + z;
-                        chunkList.add(ClaimChunk.fromBukkit(player.getWorld().getChunkAt(chunkX, chunkZ)));
+                        chunkList.add(ClaimManager.getInstance()
+                                .getChunkAtChunk(chunkX, chunkZ, player.getWorld().getName()));
                     }
                 }
                 break;
@@ -180,7 +190,8 @@ public class ClaimMenu extends FastInv {
                 for (int x = -2; x <= 2; x++) {
                     for (int z = 4; z >= -4; z--) {
                         int chunkX = playerChunkX + x, chunkZ = playerChunkZ + z;
-                        chunkList.add(ClaimChunk.fromBukkit(player.getWorld().getChunkAt(chunkX, chunkZ)));
+                        chunkList.add(ClaimManager.getInstance()
+                                .getChunkAtChunk(chunkX, chunkZ, player.getWorld().getName()));
                     }
                 }
                 break;

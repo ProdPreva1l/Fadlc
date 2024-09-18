@@ -1,26 +1,58 @@
 package info.preva1l.fadlc.persistence.daos;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.zaxxer.hikari.HikariDataSource;
+import info.preva1l.fadlc.Fadlc;
+import info.preva1l.fadlc.models.claim.ClaimProfile;
 import info.preva1l.fadlc.models.claim.IClaimProfile;
+import info.preva1l.fadlc.models.claim.IProfileGroup;
+import info.preva1l.fadlc.models.claim.settings.IProfileFlag;
 import info.preva1l.fadlc.persistence.Dao;
+import info.preva1l.fadlc.utils.Logger;
 import lombok.AllArgsConstructor;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.lang.reflect.Type;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
 
 @AllArgsConstructor
 public class ProfileDao implements Dao<IClaimProfile> {
     private final HikariDataSource dataSource;
+    private static final Type stringListType = new TypeToken<List<String>>(){}.getType();
+    private static final Type flagsType = new TypeToken<Map<IProfileFlag, Boolean>>(){}.getType();
 
     /**
      * Get an object from the database by its id.
      *
-     * @param id the id of the object to get.
+     * @param uniqueId the id of the object to get.
      * @return an optional containing the object if it exists, or an empty optional if it does not.
      */
     @Override
-    public Optional<IClaimProfile> get(UUID id) {
+    public Optional<IClaimProfile> get(UUID uniqueId) {
+        Gson gson = Fadlc.i().getGson();
+        try (Connection connection = dataSource.getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement("""
+                        SELECT  `id`, `name`, `groups`, `flags`
+                        FROM `profiles`
+                        WHERE `uuid`=?;""")) {
+                statement.setString(1, uniqueId.toString());
+                final ResultSet resultSet = statement.executeQuery();
+                if (resultSet.next()) {
+                    final UUID uuid = uniqueId;
+                    final String name = resultSet.getString("name");
+                    final int id = resultSet.getInt("id");
+                    final List<IProfileGroup> groups = groupDeserialize(gson.fromJson(resultSet.getString("groups"), stringListType));
+                    final Map<IProfileFlag, Boolean> flags = gson.fromJson(resultSet.getString("flags"), flagsType);
+                    return Optional.of(new ClaimProfile(uuid, name, id, groups, flags));
+                }
+            }
+        } catch (SQLException e) {
+            Logger.severe("Failed to get claim!", e);
+        }
         return Optional.empty();
     }
 
@@ -37,11 +69,33 @@ public class ProfileDao implements Dao<IClaimProfile> {
     /**
      * Save an object of type T to the database.
      *
-     * @param iClaimProfile the object to save.
+     * @param profile the object to save.
      */
     @Override
-    public void save(IClaimProfile iClaimProfile) {
+    public void save(IClaimProfile profile) {
+        try (Connection connection = dataSource.getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement("""
+                        INSERT INTO `profiles`
+                        (`uuid`, `id`, `name`, `groups`, `flags`)
+                        VALUES (?,?,?,?,?)
+                        ON CONFLICT(`uuid`) DO UPDATE SET
+                            `id` = excluded.`id`,
+                            `name` = excluded.`name`,
+                            `groups` = excluded.`groups`,
+                            `flags` = excluded.`flags`;""")) {
 
+                String groups = Fadlc.i().getGson().toJson(groupSerialize(profile.getGroups()));
+                String flags = Fadlc.i().getGson().toJson(profile.getFlags());
+                statement.setString(1, profile.getUniqueId().toString());
+                statement.setInt(2, profile.getId());
+                statement.setString(3, profile.getName());
+                statement.setString(4, groups);
+                statement.setString(5, flags);
+                statement.execute();
+            }
+        } catch (SQLException e) {
+            Logger.severe("Failed to add item to listings!", e);
+        }
     }
 
     /**
@@ -63,5 +117,22 @@ public class ProfileDao implements Dao<IClaimProfile> {
     @Override
     public void delete(IClaimProfile iClaimProfile) {
 
+    }
+
+    private List<String> groupSerialize(List<IProfileGroup> groups) {
+        List<String> list = new ArrayList<>();
+        for (IProfileGroup group : groups) {
+            list.add(group.getUniqueId().toString());
+        }
+        return list;
+    }
+
+    private List<IProfileGroup> groupDeserialize(List<String> groups) {
+        List<IProfileGroup> list = new ArrayList<>();
+        for (String uuidStr : groups) {
+            UUID uuid = UUID.fromString(uuidStr);
+            // impl this shit here from persistence manager and what not
+        }
+        return list;
     }
 }

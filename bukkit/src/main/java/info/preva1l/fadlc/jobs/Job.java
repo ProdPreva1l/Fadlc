@@ -21,21 +21,26 @@ public abstract class Job {
             new ScheduledThreadPoolExecutor(Config.getInstance().getJobs().getPoolSize());
 
     public final void start() {
-        scheduler.scheduleAtFixedRate(this::run, 0L,
-                interval.get(ChronoUnit.MILLIS), TimeUnit.of(ChronoUnit.MILLIS));
-        Logger.info("[JOBS] Job '" + name + "' started");
+        scheduler.scheduleAtFixedRate(this::run, interval.get(ChronoUnit.SECONDS),
+                interval.get(ChronoUnit.SECONDS), TimeUnit.SECONDS);
+        Logger.info("[JOBS] Job '%s' scheduled at an interval of %s seconds".formatted(this.name, interval.get(ChronoUnit.SECONDS)));
     }
 
-    private void run() {
+    void run() {
         int errors = 0;
-        Logger.info("[JOBS] Running job '" + name);
+        Logger.info("[JOBS] Running job '%s'".formatted(name));
         try {
             execute();
         } catch (Exception e) {
             e.printStackTrace();
             errors++;
         }
-        Logger.info("[JOBS] Job '" + name + "' completed (%s errors)".formatted(errors));
+        Logger.info("[JOBS] Job '%s' completed (%s errors)".formatted(this.name, errors));
+    }
+
+    void shutdown() {
+        scheduler.shutdownNow();
+        Logger.info("[JOBS] Job '%s' shutdown!".formatted(this.name));
     }
 
     protected abstract void execute();

@@ -4,13 +4,17 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import info.preva1l.fadlc.Fadlc;
 import info.preva1l.fadlc.config.Config;
+import info.preva1l.fadlc.models.IClaimChunk;
 import info.preva1l.fadlc.models.claim.IClaim;
 import info.preva1l.fadlc.models.claim.IClaimProfile;
+import info.preva1l.fadlc.models.user.OnlineUser;
 import info.preva1l.fadlc.persistence.Dao;
 import info.preva1l.fadlc.persistence.DatabaseHandler;
 import info.preva1l.fadlc.persistence.DatabaseObject;
+import info.preva1l.fadlc.persistence.daos.ChunkDao;
 import info.preva1l.fadlc.persistence.daos.ClaimDao;
 import info.preva1l.fadlc.persistence.daos.ProfileDao;
+import info.preva1l.fadlc.persistence.daos.UserDao;
 import info.preva1l.fadlc.utils.Logger;
 import lombok.Getter;
 import org.jetbrains.annotations.Blocking;
@@ -105,6 +109,8 @@ public class SQLiteHandler implements DatabaseHandler {
     public void registerDaos() {
         registerDao(IClaim.class, new ClaimDao(dataSource));
         registerDao(IClaimProfile.class, new ProfileDao(dataSource));
+        registerDao(OnlineUser.class, new UserDao(dataSource));
+        registerDao(IClaimChunk.class, new ChunkDao(dataSource));
     }
 
     @Override

@@ -6,6 +6,4 @@ public interface IProfileSetting {
     String getName();
 
     List<String> getDescription();
-
-    boolean isEnabledByDefault();
 }

@@ -10,17 +10,14 @@ import java.util.List;
 public enum ProfileSetting implements IProfileSetting {
     PLACE_BLOCKS(
             "Allow Block Placing",
-            List.of("Whether or not to allow", "player to place blocks."),
-            false
+            List.of("Whether or not to allow", "player to place blocks.")
     ),
     BREAK_BLOCKS(
             "Allow Block Breaking",
-            List.of("Whether or not to allow", "player to break blocks."),
-            false
+            List.of("Whether or not to allow", "player to break blocks.")
     ),
     ;
 
     private final String name;
     private final List<String> description;
-    private final boolean enabledByDefault;
 }

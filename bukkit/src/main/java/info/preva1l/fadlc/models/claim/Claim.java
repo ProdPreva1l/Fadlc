@@ -8,26 +8,27 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 @Getter
 @AllArgsConstructor
 public class Claim implements IClaim {
     private final User owner;
-    private final Map<IClaimChunk, Integer> claimedChunks;
+    private final Map<UUID, Integer> claimedChunks;
     private final Map<Integer, IClaimProfile> profiles;
 
     @Override
     public Optional<IClaimProfile> getProfile(IClaimChunk chunk) {
-        return Optional.ofNullable(profiles.get(claimedChunks.get(chunk)));
+        return Optional.ofNullable(profiles.get(claimedChunks.get(chunk.getUniqueId())));
     }
 
     @Override
     public void claimChunk(@NotNull IClaimChunk claimChunk) {
-        claimedChunks.put(claimChunk, 1);
+        claimedChunks.put(claimChunk.getUniqueId(), 1);
     }
 
     @Override
     public void setProfile(IClaimChunk chunk, int profile) {
-        claimedChunks.put(chunk, profile);
+        claimedChunks.put(chunk.getUniqueId(), profile);
     }
 }

@@ -6,6 +6,7 @@ import info.preva1l.fadlc.persistence.DatabaseObject;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface IClaim extends DatabaseObject {
     User getOwner();
@@ -14,7 +15,7 @@ public interface IClaim extends DatabaseObject {
 
     Optional<IClaimProfile> getProfile(IClaimChunk chunk);
 
-    Map<IClaimChunk, Integer> getClaimedChunks();
+    Map<UUID, Integer> getClaimedChunks();
 
     void claimChunk(IClaimChunk chunk);
 

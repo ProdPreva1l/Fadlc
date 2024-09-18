@@ -1,13 +1,12 @@
 package info.preva1l.fadlc.models;
 
+import info.preva1l.fadlc.managers.ClaimManager;
 import info.preva1l.fadlc.models.user.User;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-
-import java.util.UUID;
 
 @Getter
 public class Loc extends LocRef implements ILoc {
@@ -26,7 +25,7 @@ public class Loc extends LocRef implements ILoc {
 
     @Override
     public IClaimChunk getChunk() {
-        return new ClaimChunk(getX() >> 4, getZ() >> 4, getWorld(), UUID.randomUUID());
+        return ClaimManager.getInstance().getChunkAt(this);
     }
 
     @Override

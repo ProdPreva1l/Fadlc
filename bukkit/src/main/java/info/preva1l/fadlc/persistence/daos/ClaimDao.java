@@ -1,7 +1,11 @@
 package info.preva1l.fadlc.persistence.daos;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.zaxxer.hikari.HikariDataSource;
 import info.preva1l.fadlc.Fadlc;
+import info.preva1l.fadlc.managers.ClaimManager;
+import info.preva1l.fadlc.managers.PersistenceManager;
 import info.preva1l.fadlc.models.IClaimChunk;
 import info.preva1l.fadlc.models.claim.Claim;
 import info.preva1l.fadlc.models.claim.IClaim;
@@ -10,7 +14,9 @@ import info.preva1l.fadlc.models.user.OfflineUser;
 import info.preva1l.fadlc.persistence.Dao;
 import info.preva1l.fadlc.utils.Logger;
 import lombok.AllArgsConstructor;
+import org.jetbrains.annotations.Blocking;
 
+import java.lang.reflect.Type;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -20,6 +26,7 @@ import java.util.*;
 @AllArgsConstructor
 public class ClaimDao implements Dao<IClaim> {
     private final HikariDataSource dataSource;
+    private static final Type stringListType = new TypeToken<List<String>>(){}.getType();
 
     /**
      * Get an object from the database by its id.
@@ -29,18 +36,21 @@ public class ClaimDao implements Dao<IClaim> {
      */
     @Override
     public Optional<IClaim> get(UUID id) {
+        Gson gson = Fadlc.i().getGson();
         try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement("""
                         SELECT  `ownerUUID`, `ownerUsername`, `profiles`, `chunks`
-                        FROM `listings`
+                        FROM `claims`
                         WHERE `ownerUUID`=?;""")) {
                 statement.setString(1, id.toString());
                 final ResultSet resultSet = statement.executeQuery();
                 if (resultSet.next()) {
                     final UUID ownerUUID = id;
                     final String ownerName = resultSet.getString("ownerUsername");
-                    final Map<IClaimChunk, Integer> chunks = new HashMap<>();
-                    final Map<Integer, IClaimProfile> profiles = new HashMap<>();
+                    final Map<UUID, Integer> chunks =
+                            chunkDeserialize(gson.fromJson(resultSet.getString("chunks"), stringListType));
+                    final Map<Integer, IClaimProfile> profiles =
+                            profileDeserialize(gson.fromJson(resultSet.getString("profiles"), stringListType));
                     return Optional.of(new Claim(new OfflineUser(ownerUUID, ownerName), chunks, profiles));
                 }
             }
@@ -57,17 +67,20 @@ public class ClaimDao implements Dao<IClaim> {
      */
     @Override
     public List<IClaim> getAll() {
+        Gson gson = Fadlc.i().getGson();
         List<IClaim> claims = new ArrayList<>();
         try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement("""
                         SELECT  `ownerUUID`, `ownerUsername`, `profiles`, `chunks`
-                        FROM `listings`""")) {
+                        FROM `claims`;""")) {
                 final ResultSet resultSet = statement.executeQuery();
                 while (resultSet.next()) {
                     final UUID ownerUUID = UUID.fromString(resultSet.getString("ownerUUID"));
                     final String ownerName = resultSet.getString("ownerUsername");
-                    final Map<IClaimChunk, Integer> chunks = new HashMap<>();
-                    final Map<Integer, IClaimProfile> profiles = new HashMap<>();
+                    final Map<UUID, Integer> chunks =
+                            chunkDeserialize(gson.fromJson(resultSet.getString("chunks"), stringListType));
+                    final Map<Integer, IClaimProfile> profiles =
+                            profileDeserialize(gson.fromJson(resultSet.getString("profiles"), stringListType));
                     claims.add(new Claim(new OfflineUser(ownerUUID, ownerName), chunks, profiles));
                 }
             }
@@ -88,15 +101,22 @@ public class ClaimDao implements Dao<IClaim> {
             try (PreparedStatement statement = connection.prepareStatement("""
                         INSERT INTO `claims`
                         (`ownerUUID`, `ownerUsername`, `profiles`, `chunks`)
-                        VALUES (?,?,?,?);""")) {
+                        VALUES (?,?,?,?)
+                        ON CONFLICT(`ownerUUID`) DO UPDATE SET
+                            `ownerUsername` = excluded.`ownerUsername`,
+                            `profiles` = excluded.`profiles`,
+                            `chunks` = excluded.`chunks`;""")) {
+
+                String profiles = Fadlc.i().getGson().toJson(profileSerialize(claim.getProfiles()));
+                String chunks = Fadlc.i().getGson().toJson(chunkSerialize(claim.getClaimedChunks()));
                 statement.setString(1, claim.getOwner().getUniqueId().toString());
                 statement.setString(2, claim.getOwner().getName());
-                statement.setString(3, Fadlc.i().getGson().toJson(profileSerialize(claim.getProfiles())));
-                statement.setString(4, Fadlc.i().getGson().toJson(chunkSerialize(claim.getClaimedChunks())));
+                statement.setString(3, profiles);
+                statement.setString(4, chunks);
                 statement.execute();
             }
         } catch (SQLException e) {
-            Logger.severe("Failed to add item to listings!", e);
+            Logger.severe("Failed to add item to claims!", e);
         }
     }
 
@@ -129,11 +149,34 @@ public class ClaimDao implements Dao<IClaim> {
         return list;
     }
 
-    private List<String> chunkSerialize(Map<IClaimChunk, Integer> profiles) {
+    @Blocking
+    private Map<Integer, IClaimProfile> profileDeserialize(List<String> profiles) {
+        Map<Integer, IClaimProfile> ret = new HashMap<>();
+        for (String profileId : profiles) { // todo: maybe the error???
+            IClaimProfile profile = PersistenceManager.getInstance()
+                    .get(IClaimProfile.class, UUID.fromString(profileId)).join().orElseThrow();
+            ret.put(profile.getId(), profile);
+        }
+        return ret;
+    }
+
+    private List<String> chunkSerialize(Map<UUID, Integer> profiles) {
         List<String> list = new ArrayList<>();
-        for (IClaimChunk chunk : profiles.keySet()) {
-            list.add(chunk.getUniqueId().toString());
+        for (UUID chunk : profiles.keySet()) {
+            list.add(chunk.toString());
         }
         return list;
+    }
+
+    @Blocking
+    private Map<UUID, Integer> chunkDeserialize(List<String> profiles) {
+        Map<UUID, Integer> ret = new HashMap<>();
+        for (String strUuid : profiles) {
+            Logger.info(strUuid);
+            UUID uuid = UUID.fromString(strUuid);
+            IClaimChunk chunk = ClaimManager.getInstance().getChunk(uuid);
+            ret.put(chunk.getUniqueId(), chunk.getProfileId());
+        }
+        return ret;
     }
 }

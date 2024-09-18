@@ -19,6 +19,7 @@ public class BukkitUser implements OnlineUser, CommandUser {
     private final String name;
     private final UUID uniqueId;
     private final Player player;
+    private final int availableChunks;
 
     @Override
     public @NotNull Audience getAudience() {
@@ -33,11 +34,6 @@ public class BukkitUser implements OnlineUser, CommandUser {
     @Override
     public Player asPlayer() {
         return player;
-    }
-
-    @Override
-    public int getAvailableChunks() {
-        return 23;
     }
 
     @Override

@@ -3,8 +3,11 @@ package info.preva1l.fadlc.utils;
 import lombok.experimental.UtilityClass;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.md_5.bungee.api.ChatColor;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -115,9 +118,17 @@ public final class Text {
         StringBuilder buffer = new StringBuilder();
 
         while (matcher.find()) {
-            matcher.appendReplacement(buffer, LegacyChatColor.of("#" + matcher.group(1)).toString());
+            matcher.appendReplacement(buffer, ChatColor.of("#" + matcher.group(1)).toString());
         }
 
-        return LegacyChatColor.translateAlternateColorCodes('&', matcher.appendTail(buffer).toString());
+        return ChatColor.translateAlternateColorCodes('&', matcher.appendTail(buffer).toString());
+    }
+
+    public List<String> legacyList(@NotNull List<String> list) {
+        List<String> legacyList = new ArrayList<>();
+        for (String s : list) {
+            legacyList.add(legacyMessage(s));
+        }
+        return legacyList;
     }
 }

@@ -14,4 +14,7 @@ public interface IClaimManager {
     IClaim getClaimByOwner(UUID uniqueId);
 
     List<IClaim> getAllClaims();
+
+    IClaimChunk getChunk(UUID uniqueId);
+    IClaimChunk getChunkAt(ILoc loc);
 }

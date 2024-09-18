@@ -1,7 +1,13 @@
+CREATE TABLE IF NOT EXISTS users
+(
+    uniqueId        TEXT    NOT NULL PRIMARY KEY,
+    username        TEXT    NOT NULL,
+    availableChunks INTEGER NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS claims
 (
-    id            INTEGER PRIMARY KEY AUTOINCREMENT,
-    ownerUUID     TEXT NOT NULL,
+    ownerUUID     TEXT NOT NULL PRIMARY KEY,
     ownerUsername TEXT NOT NULL,
     profiles      TEXT NOT NULL, -- list of uuids
     chunks        TEXT NOT NULL  -- list of uuids
