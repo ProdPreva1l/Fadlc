@@ -45,4 +45,16 @@ public class BukkitUser implements OnlineUser, CommandUser {
     public Map<IClaim, IProfileGroup> getTrustedClaims() {
         return Map.of();
     }
+
+    @Override
+    public int hashCode() {
+        return uniqueId.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof OfflineUser || o instanceof BukkitUser)) return false;
+        User other = (User) o;
+        return uniqueId.equals(other.getUniqueId());
+    }
 }
