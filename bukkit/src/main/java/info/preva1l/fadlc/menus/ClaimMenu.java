@@ -47,6 +47,12 @@ public class ClaimMenu extends FastInv {
                 switch (chunkStatus) {
                     case CLAIMABLE -> claimChunk(chunk);
                     case ALREADY_CLAIMED -> {
+                        Optional<IClaim> claim = ClaimManager.getInstance().getClaimAt(chunk);
+                        if (claim.orElseThrow().getOwner().equals(user)) {
+                            Sounds.click(player);
+                            return;
+                        }
+
                         audience.sendActionBar(Text.modernMessage("&cChunk is already claimed!"));
                         Sounds.fail(player);
                     }

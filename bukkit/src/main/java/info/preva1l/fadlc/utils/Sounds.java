@@ -15,4 +15,8 @@ public class Sounds {
     public void fail(Player player) {
         player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, SoundCategory.MASTER, 1, 0.5F);
     }
+
+    public void click(Player player) {
+        player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, SoundCategory.MASTER, 1, 1.2F);
+    }
 }
