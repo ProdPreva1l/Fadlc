@@ -79,14 +79,14 @@ public class ProfileDao implements Dao<IClaimProfile> {
         try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement("""
                         INSERT INTO `profiles`
-                        (`uuid`, `id`, `name`, `groups`, `flags`, `particle`)
+                        (`uuid`, `id`, `name`, `groups`, `flags`, `border`)
                         VALUES (?,?,?,?,?,?)
                         ON CONFLICT(`uuid`) DO UPDATE SET
                             `id` = excluded.`id`,
                             `name` = excluded.`name`,
                             `groups` = excluded.`groups`,
                             `flags` = excluded.`flags`,
-                            `particle` = excluded.`particle`;""")) {
+                            `border` = excluded.`border`;""")) {
 
                 String groups = Fadlc.i().getGson().toJson(groupSerialize(profile.getGroups()));
                 String flags = Fadlc.i().getGson().toJson(profile.getFlags());
