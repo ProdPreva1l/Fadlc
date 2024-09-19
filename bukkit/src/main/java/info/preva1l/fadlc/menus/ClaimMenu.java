@@ -29,7 +29,7 @@ public class ClaimMenu extends FastInv {
     private final OnlineUser user;
 
     public ClaimMenu(Player player) {
-        super(54, Text.legacyMessage("&8Claim Chunks"), LayoutManager.MenuType.CLAIM);
+        super(54, LayoutManager.MenuType.CLAIM);
         this.player = player;
         this.audience = Fadlc.i().getAudiences().player(player);
         this.user = UserManager.getInstance().getUser(player.getUniqueId()).orElseThrow();
