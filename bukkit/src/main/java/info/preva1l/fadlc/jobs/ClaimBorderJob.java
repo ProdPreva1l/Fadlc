@@ -17,7 +17,7 @@ public class ClaimBorderJob extends Job {
     private static final int viewDistance = 30;
 
     public ClaimBorderJob() {
-        super("Claim Borders", Duration.ofSeconds(1), true);
+        super("Claim Borders", Duration.ofMillis(500), true);
     }
 
     @Override

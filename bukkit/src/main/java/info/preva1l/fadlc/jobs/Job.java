@@ -25,8 +25,8 @@ public abstract class Job {
     private boolean silent = false;
 
     public final void start() {
-        scheduler.scheduleAtFixedRate(this::run, interval.get(ChronoUnit.SECONDS),
-                interval.get(ChronoUnit.SECONDS), TimeUnit.SECONDS);
+        scheduler.scheduleAtFixedRate(this::run,
+                interval.toMillis(), interval.toMillis(), TimeUnit.MILLISECONDS);
         Logger.info("[JOBS] Job '%s' scheduled at an interval of %s seconds".formatted(this.name, interval.get(ChronoUnit.SECONDS)));
     }
 
