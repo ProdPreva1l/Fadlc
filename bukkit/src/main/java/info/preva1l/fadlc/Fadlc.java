@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import info.preva1l.fadlc.api.ImplLandClaimsAPI;
 import info.preva1l.fadlc.api.LandClaimsAPI;
 import info.preva1l.fadlc.commands.ClaimCommand;
+import info.preva1l.fadlc.jobs.ClaimBorderJob;
 import info.preva1l.fadlc.jobs.SaveJobs;
 import info.preva1l.fadlc.listeners.ClaimListeners;
 import info.preva1l.fadlc.listeners.PlayerListeners;
@@ -18,11 +19,12 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.List;
 import java.util.stream.Stream;
 
-@Getter
 public final class Fadlc extends JavaPlugin {
-    private static Fadlc instance;
-    private BukkitAudiences audiences;
-    private Gson gson;
+    @Getter private static Fadlc instance;
+    @Getter private BukkitAudiences audiences;
+    @Getter private Gson gson;
+
+    private ClaimBorderJob borderJob;
 
     @Override
     public void onEnable() {
@@ -50,6 +52,8 @@ public final class Fadlc extends JavaPlugin {
 
         // Init Jobs
         SaveJobs.startAll();
+        borderJob = new ClaimBorderJob();
+        borderJob.start();
 
         LandClaimsAPI.setInstance(new ImplLandClaimsAPI());
     }
@@ -58,6 +62,7 @@ public final class Fadlc extends JavaPlugin {
     public void onDisable() {
         SaveJobs.forceRunAll();
         SaveJobs.shutdownAll();
+        borderJob.shutdown();
     }
 
     private void populateCaches() {
