@@ -152,7 +152,7 @@ public class ClaimDao implements Dao<IClaim> {
     @Blocking
     private Map<Integer, IClaimProfile> profileDeserialize(List<String> profiles) {
         Map<Integer, IClaimProfile> ret = new HashMap<>();
-        for (String profileId : profiles) { // todo: maybe the error???
+        for (String profileId : profiles) {
             IClaimProfile profile = PersistenceManager.getInstance()
                     .get(IClaimProfile.class, UUID.fromString(profileId)).join().orElseThrow();
             ret.put(profile.getId(), profile);
@@ -172,7 +172,6 @@ public class ClaimDao implements Dao<IClaim> {
     private Map<UUID, Integer> chunkDeserialize(List<String> profiles) {
         Map<UUID, Integer> ret = new HashMap<>();
         for (String strUuid : profiles) {
-            Logger.info(strUuid);
             UUID uuid = UUID.fromString(strUuid);
             IClaimChunk chunk = ClaimManager.getInstance().getChunk(uuid);
             ret.put(chunk.getUniqueId(), chunk.getProfileId());

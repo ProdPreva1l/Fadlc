@@ -8,6 +8,7 @@ import info.preva1l.fadlc.models.claim.ClaimProfile;
 import info.preva1l.fadlc.models.claim.IClaimProfile;
 import info.preva1l.fadlc.models.claim.IProfileGroup;
 import info.preva1l.fadlc.models.claim.settings.IProfileFlag;
+import info.preva1l.fadlc.models.claim.settings.ProfileFlag;
 import info.preva1l.fadlc.persistence.Dao;
 import info.preva1l.fadlc.utils.Logger;
 import lombok.AllArgsConstructor;
@@ -23,7 +24,7 @@ import java.util.*;
 public class ProfileDao implements Dao<IClaimProfile> {
     private final HikariDataSource dataSource;
     private static final Type stringListType = new TypeToken<List<String>>(){}.getType();
-    private static final Type flagsType = new TypeToken<Map<IProfileFlag, Boolean>>(){}.getType();
+    private static final Type flagsType = new TypeToken<Map<ProfileFlag, Boolean>>(){}.getType();
 
     /**
      * Get an object from the database by its id.

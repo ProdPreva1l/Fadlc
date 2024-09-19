@@ -15,6 +15,7 @@ import lombok.Getter;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 @Getter
@@ -61,16 +62,13 @@ public final class Fadlc extends JavaPlugin {
 
     private void populateCaches() {
         Logger.info("Populating Caches...");
-        PersistenceManager.getInstance().getAll(IClaimChunk.class).thenAccept(chunks -> {
-            chunks.forEach(chunk -> ClaimManager.getInstance().cacheChunk(chunk));
-            Logger.info("Chunk Cache Populated!");
+        List<IClaimChunk> chunks = PersistenceManager.getInstance().getAll(IClaimChunk.class).join();
+        chunks.forEach(chunk -> ClaimManager.getInstance().cacheChunk(chunk));
+        Logger.info("Chunk Cache Populated!");
 
-            PersistenceManager.getInstance().getAll(IClaim.class).thenAccept(claims -> {
-                claims.forEach(claim -> ClaimManager.getInstance().updateClaim(claim));
-                Logger.info("Claim Cache Populated!");
-            });
-        });
-
+        List<IClaim> claims = PersistenceManager.getInstance().getAll(IClaim.class).join();
+        claims.forEach(claim -> ClaimManager.getInstance().updateClaim(claim));
+        Logger.info("Claim Cache Populated!");
     }
 
     public static Fadlc i() {

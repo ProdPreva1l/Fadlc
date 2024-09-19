@@ -10,7 +10,6 @@ import info.preva1l.fadlc.models.ChunkStatus;
 import info.preva1l.fadlc.models.IClaimChunk;
 import info.preva1l.fadlc.models.claim.IClaim;
 import info.preva1l.fadlc.models.user.OnlineUser;
-import info.preva1l.fadlc.utils.Logger;
 import info.preva1l.fadlc.utils.Sounds;
 import info.preva1l.fadlc.utils.Text;
 import net.kyori.adventure.audience.Audience;
@@ -35,8 +34,6 @@ public class ClaimMenu extends FastInv {
         this.audience = Fadlc.i().getAudiences().player(player);
         this.user = UserManager.getInstance().getUser(player.getUniqueId()).orElseThrow();
 
-
-        user.getClaim().getClaimedChunks().forEach((c, e) -> Logger.info(c.toString()));
         placeChunkItems();
     }
 
@@ -72,11 +69,7 @@ public class ClaimMenu extends FastInv {
     }
 
     private void claimChunk(IClaimChunk chunk) {
-        chunk.setClaimedSince(System.currentTimeMillis());
-        chunk.setProfileId(1);
         user.getClaim().claimChunk(chunk);
-        ClaimManager.getInstance().cacheChunk(chunk);
-        ClaimManager.getInstance().updateClaim(user.getClaim());
         placeChunkItems();
         Sounds.success(player);
     }

@@ -1,5 +1,6 @@
 package info.preva1l.fadlc.models.claim;
 
+import info.preva1l.fadlc.managers.ClaimManager;
 import info.preva1l.fadlc.models.IClaimChunk;
 import info.preva1l.fadlc.models.user.User;
 import lombok.AllArgsConstructor;
@@ -24,11 +25,18 @@ public class Claim implements IClaim {
 
     @Override
     public void claimChunk(@NotNull IClaimChunk claimChunk) {
+        claimChunk.setClaimedSince(System.currentTimeMillis());
+        claimChunk.setProfileId(1);
         claimedChunks.put(claimChunk.getUniqueId(), 1);
+        ClaimManager.getInstance().cacheChunk(claimChunk);
+        ClaimManager.getInstance().updateClaim(this);
     }
 
     @Override
     public void setProfile(IClaimChunk chunk, int profile) {
+        chunk.setProfileId(1);
         claimedChunks.put(chunk.getUniqueId(), profile);
+        ClaimManager.getInstance().cacheChunk(chunk);
+        ClaimManager.getInstance().updateClaim(this);
     }
 }
