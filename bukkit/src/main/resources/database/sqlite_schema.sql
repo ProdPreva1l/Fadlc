@@ -9,8 +9,8 @@ CREATE TABLE IF NOT EXISTS claims
 (
     ownerUUID     TEXT NOT NULL PRIMARY KEY,
     ownerUsername TEXT NOT NULL,
-    profiles      TEXT NOT NULL, -- list of uuids
-    chunks        TEXT NOT NULL  -- list of uuids
+    profiles      TEXT NOT NULL,
+    chunks        TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS chunks
@@ -29,14 +29,15 @@ CREATE TABLE IF NOT EXISTS profiles
     uuid   TEXT    NOT NULL PRIMARY KEY,
     id     INTEGER NOT NULL,
     name   TEXT    NOT NULL,
-    groups TEXT    NOT NULL, -- list of uuids
-    flags  TEXT    NOT NULL  -- {"EXPLOSION_DAMAGE": "false", "MOB_GRIEFING": "false"}
+    groups TEXT    NOT NULL,
+    flags  TEXT    NOT NULL,
+    border TEXT    NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS groups
 (
     uuid     TEXT NOT NULL PRIMARY KEY,
     name     TEXT NOT NULL,
-    users    TEXT NOT NULL, -- list of users (uuid + username)
-    settings TEXT NOT NULL  -- {"PLACE_BLOCKS": "false", "BREAK_BLOCKS": "false"}
+    users    TEXT NOT NULL,
+    settings TEXT NOT NULL
 );

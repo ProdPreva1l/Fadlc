@@ -15,7 +15,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class ProfileGroup implements IProfileGroup {
     private final UUID uniqueId;
-    private final String name;
+    private String name;
     private final List<User> users;
     private final Map<IProfileSetting, Boolean> settings;
 

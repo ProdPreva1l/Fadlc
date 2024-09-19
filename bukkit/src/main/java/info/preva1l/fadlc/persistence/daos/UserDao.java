@@ -43,7 +43,7 @@ public class UserDao implements Dao<OnlineUser> {
                 }
             }
         } catch (SQLException e) {
-            Logger.severe("Failed to get claim!", e);
+            Logger.severe("Failed to get user!", e);
         }
         return Optional.empty();
     }
@@ -79,7 +79,7 @@ public class UserDao implements Dao<OnlineUser> {
                 statement.execute();
             }
         } catch (SQLException e) {
-            Logger.severe("Failed to add item to listings!", e);
+            Logger.severe("Failed to add item to users!", e);
         }
     }
 

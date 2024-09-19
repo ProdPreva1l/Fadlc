@@ -4,10 +4,10 @@ import info.preva1l.fadlc.managers.ClaimManager;
 import info.preva1l.fadlc.models.ChunkStatus;
 import info.preva1l.fadlc.models.IClaimChunk;
 import info.preva1l.fadlc.models.claim.IClaim;
+import info.preva1l.fadlc.models.claim.IClaimProfile;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
-import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 
 import java.time.Duration;
@@ -51,26 +51,36 @@ public class ClaimBorderJob extends Job {
         int startZ = chunk.getZ() << 4;
         int endX = startX + 16;
         int endZ = startZ + 16;
+        IClaimChunk claimChunk = ClaimManager.getInstance().getChunkAtChunk(chunk.getX(), chunk.getZ(), chunk.getWorld().getName());
+        Optional<IClaim> claim = ClaimManager.getInstance().getClaimAt(claimChunk);
+
+        if (claim.isEmpty()) {
+            return;
+        }
 
         for (int x = startX; x <= endX; x++) {
             if (isWithinViewDistance(playerLocation, x, startZ)
                     && !isConnectingChunk(player.getWorld().getChunkAt(chunk.getX(), chunk.getZ() - 1), chunk)) {
-                spawnParticleAt(player, new Location(player.getWorld(), x, playerY + 1, startZ));
+                spawnParticleAt(player, new Location(player.getWorld(), x, playerY + 1, startZ),
+                        claim.get().getProfiles().get(claimChunk.getProfileId()));
             }
             if (isWithinViewDistance(playerLocation, x, endZ)
                     && !isConnectingChunk(player.getWorld().getChunkAt(chunk.getX(), chunk.getZ() + 1), chunk)) {
-                spawnParticleAt(player, new Location(player.getWorld(), x, playerY + 1, endZ));
+                spawnParticleAt(player, new Location(player.getWorld(), x, playerY + 1, endZ),
+                        claim.get().getProfiles().get(claimChunk.getProfileId()));
             }
         }
 
         for (int z = startZ; z <= endZ; z++) {
             if (isWithinViewDistance(playerLocation, startX, z)
                     && !isConnectingChunk(player.getWorld().getChunkAt(chunk.getX() - 1, chunk.getZ()), chunk)) {
-                spawnParticleAt(player, new Location(player.getWorld(), startX, playerY + 1, z));
+                spawnParticleAt(player, new Location(player.getWorld(), startX, playerY + 1, z),
+                        claim.get().getProfiles().get(claimChunk.getProfileId()));
             }
             if (isWithinViewDistance(playerLocation, endX, z)
                     && !isConnectingChunk(player.getWorld().getChunkAt(chunk.getX() + 1, chunk.getZ()), chunk)) {
-                spawnParticleAt(player, new Location(player.getWorld(), endX, playerY + 1, z));
+                spawnParticleAt(player, new Location(player.getWorld(), endX, playerY + 1, z),
+                        claim.get().getProfiles().get(claimChunk.getProfileId()));
             }
         }
     }
@@ -94,11 +104,11 @@ public class ClaimBorderJob extends Job {
         return distance <= viewDistance;
     }
 
-    private void spawnParticleAt(Player player, Location loc) {
-        player.spawnParticle(Particle.VILLAGER_HAPPY, loc, 1, 0, 0, 0, 0);
-        player.spawnParticle(Particle.VILLAGER_HAPPY, loc.clone().add(0, 1, 0), 1, 0, 0, 0, 0);
-        player.spawnParticle(Particle.VILLAGER_HAPPY, loc.clone().add(0, 2, 0), 1, 0, 0, 0, 0);
-        player.spawnParticle(Particle.VILLAGER_HAPPY, loc.clone().add(0, -1, 0), 1, 0, 0, 0, 0);
-        player.spawnParticle(Particle.VILLAGER_HAPPY, loc.clone().add(0, -2, 0), 1, 0, 0, 0, 0);
+    private void spawnParticleAt(Player player, Location loc, IClaimProfile profile) {
+        player.spawnParticle(profile.getBorder(), loc, 1, 0, 0, 0, 0);
+        player.spawnParticle(profile.getBorder(), loc.clone().add(0, 1, 0), 1, 0, 0, 0, 0);
+        player.spawnParticle(profile.getBorder(), loc.clone().add(0, 2, 0), 1, 0, 0, 0, 0);
+        player.spawnParticle(profile.getBorder(), loc.clone().add(0, -1, 0), 1, 0, 0, 0, 0);
+        player.spawnParticle(profile.getBorder(), loc.clone().add(0, -2, 0), 1, 0, 0, 0, 0);
     }
 }

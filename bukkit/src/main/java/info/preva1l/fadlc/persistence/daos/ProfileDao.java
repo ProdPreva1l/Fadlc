@@ -12,6 +12,7 @@ import info.preva1l.fadlc.models.claim.settings.ProfileFlag;
 import info.preva1l.fadlc.persistence.Dao;
 import info.preva1l.fadlc.utils.Logger;
 import lombok.AllArgsConstructor;
+import org.bukkit.Particle;
 
 import java.lang.reflect.Type;
 import java.sql.Connection;
@@ -37,7 +38,7 @@ public class ProfileDao implements Dao<IClaimProfile> {
         Gson gson = Fadlc.i().getGson();
         try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement("""
-                        SELECT  `id`, `name`, `groups`, `flags`
+                        SELECT  `id`, `name`, `groups`, `flags`, `border`
                         FROM `profiles`
                         WHERE `uuid`=?;""")) {
                 statement.setString(1, uniqueId.toString());
@@ -48,11 +49,12 @@ public class ProfileDao implements Dao<IClaimProfile> {
                     final int id = resultSet.getInt("id");
                     final List<IProfileGroup> groups = groupDeserialize(gson.fromJson(resultSet.getString("groups"), stringListType));
                     final Map<IProfileFlag, Boolean> flags = gson.fromJson(resultSet.getString("flags"), flagsType);
-                    return Optional.of(new ClaimProfile(uuid, name, id, groups, flags));
+                    final Particle particle = Particle.valueOf(resultSet.getString("border"));
+                    return Optional.of(new ClaimProfile(uuid, name, id, groups, flags, particle));
                 }
             }
         } catch (SQLException e) {
-            Logger.severe("Failed to get claim!", e);
+            Logger.severe("Failed to get profile!", e);
         }
         return Optional.empty();
     }
@@ -77,13 +79,14 @@ public class ProfileDao implements Dao<IClaimProfile> {
         try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement("""
                         INSERT INTO `profiles`
-                        (`uuid`, `id`, `name`, `groups`, `flags`)
-                        VALUES (?,?,?,?,?)
+                        (`uuid`, `id`, `name`, `groups`, `flags`, `particle`)
+                        VALUES (?,?,?,?,?,?)
                         ON CONFLICT(`uuid`) DO UPDATE SET
                             `id` = excluded.`id`,
                             `name` = excluded.`name`,
                             `groups` = excluded.`groups`,
-                            `flags` = excluded.`flags`;""")) {
+                            `flags` = excluded.`flags`,
+                            `particle` = excluded.`particle`;""")) {
 
                 String groups = Fadlc.i().getGson().toJson(groupSerialize(profile.getGroups()));
                 String flags = Fadlc.i().getGson().toJson(profile.getFlags());
@@ -92,10 +95,11 @@ public class ProfileDao implements Dao<IClaimProfile> {
                 statement.setString(3, profile.getName());
                 statement.setString(4, groups);
                 statement.setString(5, flags);
+                statement.setString(6, profile.getBorder().name());
                 statement.execute();
             }
         } catch (SQLException e) {
-            Logger.severe("Failed to add item to listings!", e);
+            Logger.severe("Failed to add item to profiles!", e);
         }
     }
 
