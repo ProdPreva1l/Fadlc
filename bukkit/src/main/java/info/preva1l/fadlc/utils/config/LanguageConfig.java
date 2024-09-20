@@ -1,9 +1,14 @@
 package info.preva1l.fadlc.utils.config;
 
+import info.preva1l.fadlc.menus.lib.ItemBuilder;
 import info.preva1l.fadlc.utils.Logger;
 import info.preva1l.fadlc.utils.Text;
+import info.preva1l.fadlc.utils.sounds.SoundType;
+import info.preva1l.fadlc.utils.sounds.Sounds;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -49,7 +54,7 @@ public class LanguageConfig {
         return material;
     }
 
-    public @NotNull String getStringFormatted(String path)  {
+    public @NotNull String getStringFormatted(String path) {
         String f = superSection.getString(path);
         if (f == null || f.equals(path)) {
             throw new RuntimeException("No value at path %s".formatted(path));
@@ -90,5 +95,32 @@ public class LanguageConfig {
             newStr.add(Text.legacyMessage(s));
         }
         return newStr;
+    }
+
+    public ItemStack getItemStack(String configSection) {
+        return new ItemBuilder(getAsMaterial(configSection + ".icon"))
+                .name(getStringFormatted(configSection + ".name"))
+                .lore(getLore(configSection + ".lore"))
+                .modelData(getInt(configSection + ".model-data")).build();
+    }
+
+    public SoundType getSound(String path) {
+        SoundType soundType;
+        String s = superSection.getString(path);
+        if (s == null || s.isEmpty()) {
+            throw new RuntimeException("No value at path %s".formatted(path));
+        }
+        try {
+            soundType = Sounds.getSound(s);
+        } catch (EnumConstantNotPresentException | IllegalArgumentException e) {
+            soundType = new SoundType("DEFAULT", Sound.UI_BUTTON_CLICK, 1F, 1.2F);
+            Logger.severe("-----------------------------");
+            Logger.severe("Config Incorrect!");
+            Logger.severe("Sound: " + s);
+            Logger.severe("Does Not Exist! Chunk sounds.yml");
+            Logger.severe("Defaulting to a click sound!");
+            Logger.severe("-----------------------------");
+        }
+        return soundType;
     }
 }

@@ -1,0 +1,14 @@
+click:
+  value: "UI_BUTTON_CLICK"
+  volume: 1.0
+  pitch: 1.2
+
+success:
+  value: "BLOCK_NOTE_BLOCK_BELL"
+  volume: 1
+  pitch: 1.2
+
+fail:
+  value: "BLOCK_NOTE_BLOCK_DIDGERIDOO"
+  volume: 1.0
+  pitch: 0.5

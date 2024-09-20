@@ -1,6 +1,7 @@
 package info.preva1l.fadlc.menus;
 
 import info.preva1l.fadlc.Fadlc;
+import info.preva1l.fadlc.config.Menus;
 import info.preva1l.fadlc.managers.ClaimManager;
 import info.preva1l.fadlc.managers.LayoutManager;
 import info.preva1l.fadlc.managers.UserManager;
@@ -10,8 +11,8 @@ import info.preva1l.fadlc.models.ChunkStatus;
 import info.preva1l.fadlc.models.IClaimChunk;
 import info.preva1l.fadlc.models.claim.IClaim;
 import info.preva1l.fadlc.models.user.OnlineUser;
-import info.preva1l.fadlc.utils.Sounds;
 import info.preva1l.fadlc.utils.Text;
+import info.preva1l.fadlc.utils.sounds.Sounds;
 import net.kyori.adventure.audience.Audience;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -34,7 +35,24 @@ public class ClaimMenu extends FastInv {
         this.audience = Fadlc.i().getAudiences().player(player);
         this.user = UserManager.getInstance().getUser(player.getUniqueId()).orElseThrow();
 
+        placeFillerItems();
+        placeNavigationButtons();
         placeChunkItems();
+    }
+
+    private void placeFillerItems() {
+        List<Integer> fillerSlots = getLayout().fillerSlots();
+        if (!fillerSlots.isEmpty()) {
+            setItems(fillerSlots.stream().mapToInt(Integer::intValue).toArray(), Menus.getInstance().getFiller().asItemStack());
+        }
+    }
+
+    private void placeNavigationButtons() {
+        int buyChunksSlot = getLayout().buttonSlots().get(LayoutManager.ButtonType.BUY_CHUNKS);
+        int changeProfileSlot = getLayout().buttonSlots().get(LayoutManager.ButtonType.CHANGE_CLAIMING_PROFILE);
+        int manageProfilesSlot = getLayout().buttonSlots().get(LayoutManager.ButtonType.MANAGE_PROFILES);
+
+        setItem(buyChunksSlot, getLang().getItemStack(""));
     }
 
     private void placeChunkItems() {
@@ -49,24 +67,24 @@ public class ClaimMenu extends FastInv {
                     case ALREADY_CLAIMED -> {
                         Optional<IClaim> claim = ClaimManager.getInstance().getClaimAt(chunk);
                         if (claim.orElseThrow().getOwner().equals(user)) {
-                            Sounds.click(player);
+                            Sounds.playSound(player, getLang().getSound("chunk-sounds.manage-chunk"));
                             return;
                         }
 
                         audience.sendActionBar(Text.modernMessage("&cChunk is already claimed!"));
-                        Sounds.fail(player);
+                        Sounds.playSound(player, getLang().getSound("chunk-sounds.already-claimed"));
                     }
                     case WORLD_DISABLED -> {
                         audience.sendActionBar(Text.modernMessage("&cClaiming is disabled in this world!"));
-                        Sounds.fail(player);
+                        Sounds.playSound(player, getLang().getSound("chunk-sounds.cant-claim.other"));
                     }
                     case BLOCKED_WORLD_GUARD -> {
                         audience.sendActionBar(Text.modernMessage("&cThis chunk is protected by world guard!"));
-                        Sounds.fail(player);
+                        Sounds.playSound(player, getLang().getSound("chunk-sounds.cant-claim.other"));
                     }
                     case BLOCKED_ZONE_BORDER -> {
                         audience.sendActionBar(Text.modernMessage("&cYou cannot claim within 3 chunks of the zone border!"));
-                        Sounds.fail(player);
+                        Sounds.playSound(player, getLang().getSound("chunk-sounds.cant-claim.other"));
                     }
                 }
             });
@@ -77,7 +95,7 @@ public class ClaimMenu extends FastInv {
     private void claimChunk(IClaimChunk chunk) {
         user.getClaim().claimChunk(chunk);
         placeChunkItems();
-        Sounds.success(player);
+        Sounds.playSound(player, getLang().getSound("chunk-sounds.claim-created"));
     }
 
     private ItemStack getChunkItem(int index, IClaimChunk chunk) {
@@ -98,13 +116,13 @@ public class ClaimMenu extends FastInv {
                         .skullOwner(Bukkit.getOfflinePlayer(claim.orElseThrow().getOwner().getUniqueId()));
             }
             case WORLD_DISABLED -> itemBuilder = new ItemBuilder(Material.RED_STAINED_GLASS_PANE);
-            case BLOCKED_ZONE_BORDER -> new ItemBuilder(Material.PURPLE_STAINED_GLASS_PANE);
-            case BLOCKED_WORLD_GUARD -> new ItemBuilder(Material.RED_STAINED_GLASS_PANE);
+            case BLOCKED_ZONE_BORDER -> itemBuilder = new ItemBuilder(Material.PURPLE_STAINED_GLASS_PANE);
+            case BLOCKED_WORLD_GUARD -> itemBuilder = new ItemBuilder(Material.RED_STAINED_GLASS_PANE);
         }
 
         if (index == 22) {
-            itemBuilder = new ItemBuilder(Material.NETHER_STAR)
-                    .addLore(Text.legacyMessage("&d&oYou are standing in this chunk."));
+            itemBuilder = new ItemBuilder(getLang().getAsMaterial("chunks.current-chunk.icon", Material.NETHER_STAR))
+                    .addLore(getLang().getStringFormatted("chunks.current-chunk.lore-header"));
         }
 
         return itemBuilder;
@@ -119,7 +137,8 @@ public class ClaimMenu extends FastInv {
             }
             case WORLD_DISABLED -> itemBuilder.name(Text.legacyMessage("&c&oClaiming is disabled in this world!"));
             case BLOCKED_ZONE_BORDER -> itemBuilder.name(Text.legacyMessage("&c&oYou cannot claim near the border!"));
-            case BLOCKED_WORLD_GUARD -> itemBuilder.name(Text.legacyMessage("&c&oYou cannot claim in protected areas!"));
+            case BLOCKED_WORLD_GUARD ->
+                    itemBuilder.name(Text.legacyMessage("&c&oYou cannot claim in protected areas!"));
         };
     }
 
@@ -148,7 +167,8 @@ public class ClaimMenu extends FastInv {
             }
             case WORLD_DISABLED -> itemBuilder.name(Text.legacyMessage("&c&oClaiming is disabled in this world!"));
             case BLOCKED_ZONE_BORDER -> itemBuilder.name(Text.legacyMessage("&c&oYou cannot claim near the border!"));
-            case BLOCKED_WORLD_GUARD -> itemBuilder.name(Text.legacyMessage("&c&oYou cannot claim in protected areas!"));
+            case BLOCKED_WORLD_GUARD ->
+                    itemBuilder.name(Text.legacyMessage("&c&oYou cannot claim in protected areas!"));
         };
     }
 

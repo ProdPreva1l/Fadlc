@@ -2,6 +2,7 @@ package info.preva1l.fadlc.listeners;
 
 import info.preva1l.fadlc.managers.PersistenceManager;
 import info.preva1l.fadlc.managers.UserManager;
+import info.preva1l.fadlc.models.MessageLocation;
 import info.preva1l.fadlc.models.user.BukkitUser;
 import info.preva1l.fadlc.models.user.OnlineUser;
 import lombok.AllArgsConstructor;
@@ -19,7 +20,7 @@ public class PlayerListeners implements Listener {
             OnlineUser onlineUser;
 
             if (user.isEmpty()) {
-                onlineUser = new BukkitUser(e.getPlayer().getName(), e.getPlayer().getUniqueId(), e.getPlayer(), 0); // todo: config first chunks
+                onlineUser = new BukkitUser(e.getPlayer().getName(), e.getPlayer().getUniqueId(), e.getPlayer(), 0, true, true, true, MessageLocation.CHAT); // todo: config first chunks
                 PersistenceManager.getInstance().save(OnlineUser.class, onlineUser);
             } else {
                 onlineUser = user.get();

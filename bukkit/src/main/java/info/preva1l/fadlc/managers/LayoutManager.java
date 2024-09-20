@@ -160,10 +160,15 @@ public class LayoutManager {
         /**
          * Claim Buttons
          */
-        CHUNK,
-        CURRENT_CHUNK,
+        BUY_CHUNKS,
+        CHANGE_CLAIMING_PROFILE,
+        MANAGE_PROFILES,
+        /**
+         * Profiles Buttons
+         */
+        CHANGE_NAME,
         MANAGE_GROUPS,
-        MANAGE_CLAIMS,
+        CHANGE_BORDER,
         /**
          * Misc Items
          */

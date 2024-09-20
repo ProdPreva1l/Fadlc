@@ -2,6 +2,7 @@ package info.preva1l.fadlc.models.user;
 
 import info.preva1l.fadlc.Fadlc;
 import info.preva1l.fadlc.managers.ClaimManager;
+import info.preva1l.fadlc.models.MessageLocation;
 import info.preva1l.fadlc.models.claim.IClaim;
 import info.preva1l.fadlc.models.claim.IProfileGroup;
 import lombok.AllArgsConstructor;
@@ -19,7 +20,11 @@ public class BukkitUser implements OnlineUser, CommandUser {
     private final String name;
     private final UUID uniqueId;
     private final Player player;
-    private final int availableChunks;
+    private int availableChunks;
+    private boolean viewBorders;
+    private boolean showEnterMessages;
+    private boolean showLeaveMessages;
+    private MessageLocation messageLocation;
 
     @Override
     public @NotNull Audience getAudience() {

@@ -1,8 +1,12 @@
 CREATE TABLE IF NOT EXISTS users
 (
-    uniqueId        TEXT    NOT NULL PRIMARY KEY,
-    username        TEXT    NOT NULL,
-    availableChunks INTEGER NOT NULL
+    uniqueId          TEXT       NOT NULL PRIMARY KEY,
+    username          TEXT       NOT NULL,
+    availableChunks   INTEGER    NOT NULL,
+    showBorders       INTEGER(1) NOT NULL,
+    showEnterMessages INTEGER(1) NOT NULL,
+    showLeaveMessages INTEGER(1) NOT NULL,
+    messageLocation   TEXT       NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS claims

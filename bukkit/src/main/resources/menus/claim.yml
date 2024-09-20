@@ -1,2 +1,37 @@
 title: "&8Claim Chunks"
 
+lang:
+  chunk-sounds:
+    manage-chunk: "click"
+    claim-created: "success"
+    already-claimed: "fail"
+    not-enough-chunks: "fail"
+    cant-claim-other: "fail"
+
+  chunks:
+    current-chunk:
+      icon: "NETHER_STAR"
+      lore-header:
+        - "&d&oYou are standing in this chunk."
+    world-disabled: "RED_STAINED_GLASS_PANE"
+    restricted-region: "RED_STAINED_GLASS_PANE"
+    asz-zone-border: "PURPLE_STAINED_GLASS_PANE"
+
+  buy-chunks:
+    icon: ""
+    model-data: 0
+    sound: "click"
+    name: ""
+    lore:
+      - ""
+
+layout:
+  '45': "FILLER"
+  '46': "FILLER"
+  '47': "BUY_CHUNKS"
+  '48': "FILLER"
+  '49': "CHANGE_CLAIMING_PROFILE"
+  '50': "FILLER"
+  '51': "MANAGE_PROFILES"
+  '52': "FILLER"
+  '53': "PLAYER_SETTINGS"

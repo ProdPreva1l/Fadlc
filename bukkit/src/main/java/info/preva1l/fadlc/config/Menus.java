@@ -34,6 +34,18 @@ public class Menus {
             .setNameFormatter(NameFormatters.LOWER_KEBAB_CASE)
             .header(CONFIG_HEADER).build();
 
+    private Filler filler = new Filler();
+
+    @Getter
+    @Configuration
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class Filler implements ConfigurableItem {
+        private Material material = Material.BARRIER;
+        private int modelData = 0;
+        private String name = "&r ";
+        private List<String> lore = List.of("&8I <3 Fadlc");
+    }
+
     private NoItems noItems = new NoItems();
 
     @Getter

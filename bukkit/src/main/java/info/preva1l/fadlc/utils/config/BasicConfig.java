@@ -40,6 +40,13 @@ public class BasicConfig {
         return 0;
     }
 
+    public float getFloat(String path) {
+        if (this.configuration.contains(path)) {
+            return (float) this.configuration.getDouble(path);
+        }
+        return 0.0F;
+    }
+
     public String getString(String path) {
         if (this.configuration.contains(path)) {
             return this.configuration.getString(path);
