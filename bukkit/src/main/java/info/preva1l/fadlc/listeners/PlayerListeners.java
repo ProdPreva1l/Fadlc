@@ -26,7 +26,10 @@ public class PlayerListeners implements Listener {
 
     @EventHandler
     public void onPreLogin(AsyncPlayerPreLoginEvent e) {
-        invalidateIfNoJoin.put(e.getUniqueId(), Bukkit.getScheduler().runTaskLater(Fadlc.i(), () -> leave(e.getUniqueId(), e.getName()), 1200L));
+        invalidateIfNoJoin.put(e.getUniqueId(), Bukkit.getScheduler().runTaskLater(Fadlc.i(), () -> {
+            leave(e.getUniqueId(), e.getName());
+            invalidateIfNoJoin.remove(e.getUniqueId());
+        }, 1200L));
         PersistenceManager.getInstance().get(OnlineUser.class, e.getUniqueId()).thenAccept(user -> {
             OnlineUser onlineUser;
 
