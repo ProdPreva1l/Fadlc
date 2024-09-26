@@ -5,9 +5,9 @@ import info.preva1l.fadlc.managers.ClaimManager;
 import info.preva1l.fadlc.models.MessageLocation;
 import info.preva1l.fadlc.models.claim.IClaim;
 import info.preva1l.fadlc.models.claim.IProfileGroup;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import net.kyori.adventure.audience.Audience;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -15,29 +15,42 @@ import java.util.Map;
 import java.util.UUID;
 
 @Getter
-@AllArgsConstructor
 public class BukkitUser implements OnlineUser, CommandUser {
     private final String name;
     private final UUID uniqueId;
-    private final Player player;
+    private Player player = null;
     private int availableChunks;
     private boolean viewBorders;
     private boolean showEnterMessages;
     private boolean showLeaveMessages;
     private MessageLocation messageLocation;
 
+    public BukkitUser(@NotNull final String name, final UUID uniqueId, int availableChunks,
+                      boolean viewBorders, boolean showEnterMessages, boolean showLeaveMessages, MessageLocation messageLocation) {
+        this.name = name;
+        this.uniqueId = uniqueId;
+        this.availableChunks = availableChunks;
+        this.viewBorders = viewBorders;
+        this.showEnterMessages = showEnterMessages;
+        this.showLeaveMessages = showLeaveMessages;
+        this.messageLocation = messageLocation;
+    }
+
     @Override
     public @NotNull Audience getAudience() {
-        return Fadlc.i().getAudiences().player(player);
+        return Fadlc.i().getAudiences().player(asPlayer());
     }
 
     @Override
     public boolean hasPermission(@NotNull String permission) {
-        return player.hasPermission(permission);
+        return asPlayer().hasPermission(permission);
     }
 
     @Override
     public Player asPlayer() {
+        if (player == null) {
+            player = Bukkit.getPlayer(uniqueId);
+        }
         return player;
     }
 
