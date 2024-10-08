@@ -6,7 +6,8 @@ CREATE TABLE IF NOT EXISTS users
     showBorders       INTEGER(1) NOT NULL,
     showEnterMessages INTEGER(1) NOT NULL,
     showLeaveMessages INTEGER(1) NOT NULL,
-    messageLocation   TEXT       NOT NULL
+    messageLocation   TEXT       NOT NULL,
+    usingProfile      INTEGER    NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS claims
@@ -40,8 +41,9 @@ CREATE TABLE IF NOT EXISTS profiles
 
 CREATE TABLE IF NOT EXISTS groups
 (
-    uuid     TEXT NOT NULL PRIMARY KEY,
-    name     TEXT NOT NULL,
-    users    TEXT NOT NULL,
-    settings TEXT NOT NULL
+    uuid     TEXT    NOT NULL PRIMARY KEY,
+    id       INTEGER NOT NULL,
+    name     TEXT    NOT NULL,
+    users    TEXT    NOT NULL,
+    settings TEXT    NOT NULL
 );

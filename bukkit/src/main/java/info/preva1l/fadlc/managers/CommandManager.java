@@ -53,7 +53,7 @@ public final class CommandManager {
      * @param array args
      * @return args - 1st element
      */
-    protected String[] removeFirstElement(String[] array) {
+    private String[] removeFirstElement(String[] array) {
         if (array == null || array.length == 0) {
             return new String[]{};
         }
@@ -87,7 +87,7 @@ public final class CommandManager {
             }
 
 
-            CommandUser commandUser = sender instanceof Player ? (BukkitUser) UserManager.getInstance().getUser(sender.getName()).get() : new ConsoleUser(Fadlc.i().getAudiences().console());
+            CommandUser commandUser = sender instanceof Player p ? (BukkitUser) UserManager.getInstance().getUser(p.getUniqueId()).get() : new ConsoleUser(Fadlc.i().getAudiences().console());
 
             if (this.basicCommand.isAsync()) {
                 TaskManager.runAsync(Fadlc.i(), () -> basicCommand.execute(commandUser, args));
@@ -99,7 +99,7 @@ public final class CommandManager {
 
         @NotNull
         public List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
-            CommandUser commandUser = sender instanceof Player ? (BukkitUser) UserManager.getInstance().getUser(sender.getName()).get() : new ConsoleUser(Fadlc.i().getAudiences().console());
+            CommandUser commandUser = sender instanceof Player p ? (BukkitUser) UserManager.getInstance().getUser(p.getUniqueId()).get() : new ConsoleUser(Fadlc.i().getAudiences().console());
 
             // Primary argument
             if (args.length <= 1) {

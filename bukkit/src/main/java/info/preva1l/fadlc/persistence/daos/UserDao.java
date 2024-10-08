@@ -7,7 +7,6 @@ import info.preva1l.fadlc.models.user.OnlineUser;
 import info.preva1l.fadlc.persistence.Dao;
 import info.preva1l.fadlc.utils.Logger;
 import lombok.AllArgsConstructor;
-import org.bukkit.Bukkit;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -31,7 +30,7 @@ public class UserDao implements Dao<OnlineUser> {
     public Optional<OnlineUser> get(UUID id) {
         try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement("""
-                    SELECT  `uniqueId`, `username`, `availableChunks`, `showBorders`, `showEnterMessages`, `showLeaveMessages`, `messageLocation`
+                    SELECT  `uniqueId`, `username`, `availableChunks`, `showBorders`, `showEnterMessages`, `showLeaveMessages`, `messageLocation`, `usingProfile`
                     FROM `users`
                     WHERE `uniqueId`=?;""")) {
                 statement.setString(1, id.toString());
@@ -44,8 +43,9 @@ public class UserDao implements Dao<OnlineUser> {
                     final boolean enterMessages = resultSet.getBoolean("showEnterMessages");
                     final boolean leaveMessages = resultSet.getBoolean("showLeaveMessages");
                     final MessageLocation messageLocation = MessageLocation.valueOf(resultSet.getString("messageLocation"));
-                    return Optional.of(new BukkitUser(ownerName, ownerUUID, Bukkit.getPlayer(ownerUUID),
-                            availableChunks, showBorders, enterMessages, leaveMessages, messageLocation));
+                    final int usingProfile = resultSet.getInt("usingProfile");
+                    return Optional.of(new BukkitUser(ownerName, ownerUUID,
+                            availableChunks, showBorders, enterMessages, leaveMessages, messageLocation, usingProfile));
                 }
             }
         } catch (SQLException e) {
@@ -74,11 +74,16 @@ public class UserDao implements Dao<OnlineUser> {
         try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement("""
                     INSERT INTO `users`
-                    (`uniqueId`, `username`, `availableChunks`, `showBorders`, `showEnterMessages`, `showLeaveMessages`, `messageLocation`)
-                    VALUES (?,?,?,?,?,?,?)
+                    (`uniqueId`, `username`, `availableChunks`, `showBorders`, `showEnterMessages`, `showLeaveMessages`, `messageLocation`, `usingProfile`)
+                    VALUES (?,?,?,?,?,?,?,?)
                     ON CONFLICT(`uniqueId`) DO UPDATE SET
                             `username` = excluded.`username`,
-                            `availableChunks` = excluded.`availableChunks`;""")) {
+                            `availableChunks` = excluded.`availableChunks`,
+                            `showBorders` = excluded.`showBorders`,
+                            `showEnterMessages` = excluded.`showEnterMessages`,
+                            `showLeaveMessages` = excluded.`showLeaveMessages`,
+                            `messageLocation` = excluded.`messageLocation`,
+                            `usingProfile` = excluded.`usingProfile`;""")) {
                 statement.setString(1, onlineUser.getUniqueId().toString());
                 statement.setString(2, onlineUser.getName());
                 statement.setInt(3, onlineUser.getAvailableChunks());
@@ -86,6 +91,7 @@ public class UserDao implements Dao<OnlineUser> {
                 statement.setBoolean(5, onlineUser.isShowEnterMessages());
                 statement.setBoolean(6, onlineUser.isShowLeaveMessages());
                 statement.setString(7, onlineUser.getMessageLocation().name());
+                statement.setInt(8, onlineUser.getClaimWithProfile().getId());
                 statement.execute();
             }
         } catch (SQLException e) {

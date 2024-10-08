@@ -12,3 +12,9 @@ fail:
   value: "BLOCK_NOTE_BLOCK_DIDGERIDOO"
   volume: 1.0
   pitch: 0.5
+
+# You can add as many sounds as you want and use them all through-out the plugin!
+example-custom:
+  value: "UI_BUTTON_CLICK"
+  volume: 0.5
+  pitch: 2

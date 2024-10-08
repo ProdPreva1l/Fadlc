@@ -2,6 +2,7 @@ package info.preva1l.fadlc.menus.lib;
 
 import com.github.puregero.multilib.MultiLib;
 import info.preva1l.fadlc.Fadlc;
+import info.preva1l.fadlc.config.Menus;
 import info.preva1l.fadlc.managers.LayoutManager;
 import info.preva1l.fadlc.utils.config.LanguageConfig;
 import lombok.AccessLevel;
@@ -87,6 +88,15 @@ public class FastInv implements InventoryHolder {
 
     protected void onClose(InventoryCloseEvent event) {
     }
+
+    // Fadlc start
+    protected void placeFillerItems() {
+        List<Integer> fillerSlots = getLayout().fillerSlots();
+        if (!fillerSlots.isEmpty()) {
+            setItems(fillerSlots.stream().mapToInt(Integer::intValue).toArray(), Menus.getInstance().getFiller().asItemStack());
+        }
+    }
+    // Fadlc end
 
     /**
      * Add an {@link ItemStack} to the inventory on the first empty slot.

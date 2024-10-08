@@ -8,7 +8,6 @@ import info.preva1l.fadlc.utils.sounds.Sounds;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -97,11 +96,11 @@ public class LanguageConfig {
         return newStr;
     }
 
-    public ItemStack getItemStack(String configSection) {
-        return new ItemBuilder(getAsMaterial(configSection + ".icon"))
+    public EasyItem getItemStack(String configSection) {
+        return new EasyItem(new ItemBuilder(getAsMaterial(configSection + ".icon"))
                 .name(getStringFormatted(configSection + ".name"))
                 .lore(getLore(configSection + ".lore"))
-                .modelData(getInt(configSection + ".model-data")).build();
+                .modelData(getInt(configSection + ".model-data")).build());
     }
 
     public SoundType getSound(String path) {

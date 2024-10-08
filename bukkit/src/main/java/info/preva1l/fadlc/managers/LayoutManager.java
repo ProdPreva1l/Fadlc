@@ -129,6 +129,20 @@ public class LayoutManager {
 
     public enum MenuType {
         CLAIM,
+
+        PROFILES,
+        MANAGE_PROFILE,
+        PROFILE_FLAGS,
+        PROFILE_PARTICLES,
+
+        GROUPS,
+        MANAGE_GROUP,
+        GROUP_SETTINGS,
+
+        CHUNKS,
+        MANAGE_CHUNK,
+
+        SETTINGS
         ;
 
         public GuiLayout getLayout() {
@@ -163,6 +177,7 @@ public class LayoutManager {
         BUY_CHUNKS,
         CHANGE_CLAIMING_PROFILE,
         MANAGE_PROFILES,
+        PLAYER_SETTINGS,
         /**
          * Profiles Buttons
          */

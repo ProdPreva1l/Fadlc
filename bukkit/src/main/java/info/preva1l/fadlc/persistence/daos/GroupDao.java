@@ -6,8 +6,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import info.preva1l.fadlc.Fadlc;
 import info.preva1l.fadlc.models.claim.IProfileGroup;
 import info.preva1l.fadlc.models.claim.ProfileGroup;
-import info.preva1l.fadlc.models.claim.settings.IProfileSetting;
-import info.preva1l.fadlc.models.claim.settings.ProfileSetting;
+import info.preva1l.fadlc.models.claim.settings.GroupSetting;
 import info.preva1l.fadlc.models.user.OfflineUser;
 import info.preva1l.fadlc.models.user.User;
 import info.preva1l.fadlc.persistence.Dao;
@@ -27,7 +26,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class GroupDao implements Dao<IProfileGroup> {
     private final HikariDataSource dataSource;
-    private static final Type settingsType = new TypeToken<Map<ProfileSetting, Boolean>>(){}.getType();
+    private static final Type settingsType = new TypeToken<Map<GroupSetting, Boolean>>(){}.getType();
     private static final Type usersType = new TypeToken<List<OfflineUser>>(){}.getType();
 
     /**
@@ -41,17 +40,18 @@ public class GroupDao implements Dao<IProfileGroup> {
         Gson gson = Fadlc.i().getGson();
         try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement("""
-                        SELECT `name`, `users`, `settings`
+                        SELECT `id`, `name`, `users`, `settings`
                         FROM `groups`
                         WHERE `uuid`=?;""")) {
                 statement.setString(1, uniqueId.toString());
                 final ResultSet resultSet = statement.executeQuery();
                 if (resultSet.next()) {
                     final UUID uuid = uniqueId;
+                    final int id = resultSet.getInt("id");
                     final String name = resultSet.getString("name");
                     final List<User> users = gson.fromJson(resultSet.getString("users"), usersType);
-                    final Map<IProfileSetting, Boolean> flags = gson.fromJson(resultSet.getString("settings"), settingsType);
-                    return Optional.of(new ProfileGroup(uuid, name, users, flags));
+                    final Map<GroupSetting, Boolean> flags = gson.fromJson(resultSet.getString("settings"), settingsType);
+                    return Optional.of(new ProfileGroup(uuid, id, name, users, flags));
                 }
             }
         } catch (SQLException e) {
@@ -80,8 +80,8 @@ public class GroupDao implements Dao<IProfileGroup> {
         try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement("""
                         INSERT INTO `groups`
-                        (`uuid`, `name`, `users`, `settings`)
-                        VALUES (?,?,?,?)
+                        (`uuid`, `id`, `name`, `users`, `settings`)
+                        VALUES (?,?,?,?,?)
                         ON CONFLICT(`uuid`) DO UPDATE SET
                             `name` = excluded.`name`,
                             `users` = excluded.`users`,
@@ -90,9 +90,10 @@ public class GroupDao implements Dao<IProfileGroup> {
                 String users = Fadlc.i().getGson().toJson(group.getUsers());
                 String flags = Fadlc.i().getGson().toJson(group.getSettings());
                 statement.setString(1, group.getUniqueId().toString());
-                statement.setString(2, group.getName());
-                statement.setString(3, users);
-                statement.setString(4, flags);
+                statement.setInt(2, group.getId());
+                statement.setString(3, group.getName());
+                statement.setString(4, users);
+                statement.setString(5, flags);
                 statement.execute();
             }
         } catch (SQLException e) {

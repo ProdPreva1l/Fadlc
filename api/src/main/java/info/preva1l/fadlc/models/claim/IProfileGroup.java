@@ -1,6 +1,6 @@
 package info.preva1l.fadlc.models.claim;
 
-import info.preva1l.fadlc.models.claim.settings.IProfileSetting;
+import info.preva1l.fadlc.models.claim.settings.IGroupSetting;
 import info.preva1l.fadlc.models.user.User;
 import info.preva1l.fadlc.persistence.DatabaseObject;
 
@@ -11,9 +11,11 @@ import java.util.UUID;
 public interface IProfileGroup extends DatabaseObject {
     UUID getUniqueId();
 
+    int getId();
+
     String getName();
 
     List<User> getUsers();
 
-    Map<IProfileSetting, Boolean> getSettings();
+    Map<? extends IGroupSetting, Boolean> getSettings();
 }

@@ -1,7 +1,6 @@
 package info.preva1l.fadlc.menus;
 
 import info.preva1l.fadlc.Fadlc;
-import info.preva1l.fadlc.config.Menus;
 import info.preva1l.fadlc.managers.ClaimManager;
 import info.preva1l.fadlc.managers.LayoutManager;
 import info.preva1l.fadlc.managers.UserManager;
@@ -19,7 +18,9 @@ import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -40,19 +41,14 @@ public class ClaimMenu extends FastInv {
         placeChunkItems();
     }
 
-    private void placeFillerItems() {
-        List<Integer> fillerSlots = getLayout().fillerSlots();
-        if (!fillerSlots.isEmpty()) {
-            setItems(fillerSlots.stream().mapToInt(Integer::intValue).toArray(), Menus.getInstance().getFiller().asItemStack());
-        }
-    }
-
     private void placeNavigationButtons() {
         int buyChunksSlot = getLayout().buttonSlots().get(LayoutManager.ButtonType.BUY_CHUNKS);
         int changeProfileSlot = getLayout().buttonSlots().get(LayoutManager.ButtonType.CHANGE_CLAIMING_PROFILE);
         int manageProfilesSlot = getLayout().buttonSlots().get(LayoutManager.ButtonType.MANAGE_PROFILES);
 
-        setItem(buyChunksSlot, getLang().getItemStack(""));
+        setItem(buyChunksSlot, getLang().getItemStack("buy-chunks").getBase());
+        setItem(changeProfileSlot, getLang().getItemStack("switch-profile").getBase());
+        setItem(manageProfilesSlot, getLang().getItemStack("manage-profiles").getBase());
     }
 
     private void placeChunkItems() {
@@ -95,21 +91,60 @@ public class ClaimMenu extends FastInv {
     private void claimChunk(IClaimChunk chunk) {
         user.getClaim().claimChunk(chunk);
         placeChunkItems();
-        Sounds.playSound(player, getLang().getSound("chunk-sounds.claim-created"));
+        Sounds.playSound(player, getLang().getSound("chunks.unclaimed.sound.claimed"));
     }
 
     private ItemStack getChunkItem(int index, IClaimChunk chunk) {
-        ItemBuilder itemBuilder = chunkMaterial(index, chunk);
-        itemBuilder = chunkName(itemBuilder, chunk);
-        itemBuilder = chunkLore(itemBuilder, chunk);
+        ItemStack stack = switch (chunk.getStatus()) {
+            case CLAIMABLE -> getLang().getItemStack("chunks.unclaimed")
+                    .replaceAnywhere("%chunk_x%", chunk.getChunkX() + "")
+                    .replaceAnywhere("%chunk_z%", chunk.getChunkZ() + "")
+                    .replaceInLore("%available%", user.getAvailableChunks() + "").getBase();
+            case ALREADY_CLAIMED -> {
+                IClaim claim = ClaimManager.getInstance().getClaimAt(chunk).orElseThrow();
+                if (claim.getOwner().equals(user)) {
+                    yield getLang().getItemStack("chunks.claimed.yours").skullOwner(claim.getOwner().getUniqueId())
+                            .replaceAnywhere("%chunk_x%", chunk.getChunkX() + "")
+                            .replaceAnywhere("%chunk_z%", chunk.getChunkZ() + "")
+                            .replaceAnywhere("%claim_profile%", Text.legacyMessage(claim.getProfiles().get(chunk.getProfileId()).getName()))
+                            .replaceAnywhere("%owner%", claim.getOwner().getName()).getBase();
+                }
+                yield getLang().getItemStack("chunks.claimed.other").skullOwner(claim.getOwner().getUniqueId())
+                        .replaceAnywhere("%chunk_x%", chunk.getChunkX() + "")
+                        .replaceAnywhere("%chunk_z%", chunk.getChunkZ() + "")
+                        .replaceAnywhere("%claim_profile%", Text.legacyMessage(claim.getProfiles().get(chunk.getProfileId()).getName()))
+                        .replaceAnywhere("%owner%", claim.getOwner().getName()).getBase();
+            }
+            default -> {
+                ItemBuilder itemBuilder = chunkMaterial(index, chunk);
+                itemBuilder = chunkName(itemBuilder, chunk);
+                itemBuilder = chunkLore(itemBuilder, chunk);
 
-        return itemBuilder.build();
+                yield itemBuilder.build();
+            }
+        };
+
+
+        if (index == 22) {
+            stack.setType(getLang().getAsMaterial("chunks.current.icon"));
+            ItemMeta meta = stack.getItemMeta();
+            if (meta == null) throw new RuntimeException("chunk itemstack meta is null");
+            if (meta.getLore() != null) {
+                List<String> newLore = new ArrayList<>();
+                newLore.addAll(getLang().getLore("chunks.current.lore-header"));
+                newLore.addAll(meta.getLore());
+                meta.setLore(newLore);
+                meta.setCustomModelData(getLang().getInt("chunks.current.model-data"));
+            }
+            stack.setItemMeta(meta);
+        }
+
+        return stack;
     }
 
     private ItemBuilder chunkMaterial(int index, IClaimChunk chunk) {
         ItemBuilder itemBuilder = null;
         switch (chunk.getStatus()) {
-            case CLAIMABLE -> itemBuilder = new ItemBuilder(Material.GRAY_STAINED_GLASS_PANE);
             case ALREADY_CLAIMED -> {
                 Optional<IClaim> claim = ClaimManager.getInstance().getClaimAt(chunk);
                 itemBuilder = new ItemBuilder(Material.PLAYER_HEAD)
@@ -129,47 +164,48 @@ public class ClaimMenu extends FastInv {
     }
 
     private ItemBuilder chunkName(ItemBuilder itemBuilder, IClaimChunk chunk) {
-        return switch (chunk.getStatus()) {
-            case CLAIMABLE -> itemBuilder.name(Text.legacyMessage("&7Unclaimed Chunk"));
-            case ALREADY_CLAIMED -> {
-                Optional<IClaim> claim = ClaimManager.getInstance().getClaimAt(chunk);
-                yield itemBuilder.name(Text.legacyMessage(claim.orElseThrow().getProfile(chunk).orElseThrow().getName()));
-            }
-            case WORLD_DISABLED -> itemBuilder.name(Text.legacyMessage("&c&oClaiming is disabled in this world!"));
-            case BLOCKED_ZONE_BORDER -> itemBuilder.name(Text.legacyMessage("&c&oYou cannot claim near the border!"));
-            case BLOCKED_WORLD_GUARD ->
-                    itemBuilder.name(Text.legacyMessage("&c&oYou cannot claim in protected areas!"));
-        };
+        return null;
+//        return switch (chunk.getStatus()) {
+//            case ALREADY_CLAIMED -> {
+//                Optional<IClaim> claim = ClaimManager.getInstance().getClaimAt(chunk);
+//                if (claim.orElseThrow().getOwner().equals(user)) {
+//                    yield itemBuilder.name(getLang().getStringFormatted("chunks.claimed.yours.name")
+//                            .replace("%claim_profile%", claim.orElseThrow().getProfile(chunk).orElseThrow().getName()));
+//                }
+//                yield itemBuilder.name(getLang().getStringFormatted("chunks.claimed.other.name")
+//                        .replace("%claim_profile%", claim.orElseThrow().getProfile(chunk).orElseThrow().getName()));
+//            }
+//            case WORLD_DISABLED -> itemBuilder.name(getLang().getStringFormatted("chunks.world-disabled.name"));
+//            case BLOCKED_ZONE_BORDER -> itemBuilder.name(Text.legacyMessage("&c&oYou cannot claim near the border!"));
+//            case BLOCKED_WORLD_GUARD ->
+//                    itemBuilder.name(Text.legacyMessage("&c&oYou cannot claim in protected areas!"));
+//        };
     }
 
     private ItemBuilder chunkLore(ItemBuilder itemBuilder, IClaimChunk chunk) {
-        return switch (chunk.getStatus()) {
-            case CLAIMABLE -> itemBuilder.addLore(Text.legacyList(List.of(
-                    "&7&l‣ &3Chunk: &f%s, %s".formatted(chunk.getChunkX(), chunk.getChunkZ()),
-                    "&7&l‣ &3Cost: &f1 Claim Chunk &7(You have: &f%s&7)".formatted(user.getAvailableChunks()),
-                    "",
-                    "&a→ Click &3to claim this chunk!")));
-            case ALREADY_CLAIMED -> {
-                Optional<IClaim> claim = ClaimManager.getInstance().getClaimAt(chunk);
-                if (claim.orElseThrow().getOwner().equals(user)) {
-                    yield itemBuilder.addLore(Text.legacyList(List.of(
-                            "&7&l‣ &3Owner: &f%s".formatted(claim.orElseThrow().getOwner().getName()),
-                            "&7&l‣ &3Chunk: &f%s, %s".formatted(chunk.getChunkX(), chunk.getChunkZ()),
-                            "&7&l‣ &3Claimed: &f%s".formatted(chunk.getClaimedSince()),
-                            "",
-                            "&a→ Click &3to manage this claim!")));
-                }
-                yield itemBuilder.addLore(Text.legacyList(List.of(
-                        "&7&l‣ &3Owner: &f%s".formatted(claim.orElseThrow().getOwner().getName()),
-                        "&7&l‣ &3Chunk: &f%s, %s".formatted(chunk.getChunkX(), chunk.getChunkZ()),
-                        "&7&l‣ &3Claimed: &f%s".formatted(chunk.getClaimedSince()),
-                        "")));
-            }
-            case WORLD_DISABLED -> itemBuilder.name(Text.legacyMessage("&c&oClaiming is disabled in this world!"));
-            case BLOCKED_ZONE_BORDER -> itemBuilder.name(Text.legacyMessage("&c&oYou cannot claim near the border!"));
-            case BLOCKED_WORLD_GUARD ->
-                    itemBuilder.name(Text.legacyMessage("&c&oYou cannot claim in protected areas!"));
-        };
+        return null;
+//        return switch (chunk.getStatus()) {
+//            case ALREADY_CLAIMED -> {
+//                Optional<IClaim> claim = ClaimManager.getInstance().getClaimAt(chunk);
+//                if (claim.orElseThrow().getOwner().equals(user)) {
+//                    yield itemBuilder.addLore(Text.legacyList(List.of(
+//                            "&7&l‣ &3Owner: &f%s".formatted(claim.orElseThrow().getOwner().getName()),
+//                            "&7&l‣ &3Chunk: &f%s, %s".formatted(chunk.getChunkX(), chunk.getChunkZ()),
+//                            "&7&l‣ &3Claimed: &f%s".formatted(chunk.getClaimedSince()),
+//                            "",
+//                            "&a→ Click &3to manage this claim!")));
+//                }
+//                yield itemBuilder.addLore(Text.legacyList(List.of(
+//                        "&7&l‣ &3Owner: &f%s".formatted(claim.orElseThrow().getOwner().getName()),
+//                        "&7&l‣ &3Chunk: &f%s, %s".formatted(chunk.getChunkX(), chunk.getChunkZ()),
+//                        "&7&l‣ &3Claimed: &f%s".formatted(chunk.getClaimedSince()),
+//                        "")));
+//            }
+//            case WORLD_DISABLED -> itemBuilder.name(Text.legacyMessage("&c&oClaiming is disabled in this world!"));
+//            case BLOCKED_ZONE_BORDER -> itemBuilder.name(Text.legacyMessage("&c&oYou cannot claim near the border!"));
+//            case BLOCKED_WORLD_GUARD ->
+//                    itemBuilder.name(Text.legacyMessage("&c&oYou cannot claim in protected areas!"));
+//        };
     }
 
     public List<IClaimChunk> getNearByChunksRelativeToPlayerAndMenu() {

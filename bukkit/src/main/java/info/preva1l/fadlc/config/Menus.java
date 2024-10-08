@@ -40,7 +40,7 @@ public class Menus {
     @Configuration
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public static class Filler implements ConfigurableItem {
-        private Material material = Material.BARRIER;
+        private Material material = Material.BLACK_STAINED_GLASS_PANE;
         private int modelData = 0;
         private String name = "&r ";
         private List<String> lore = List.of("&8I <3 Fadlc");

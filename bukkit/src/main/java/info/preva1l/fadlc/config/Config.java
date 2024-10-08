@@ -2,6 +2,7 @@ package info.preva1l.fadlc.config;
 
 import de.exlll.configlib.*;
 import info.preva1l.fadlc.Fadlc;
+import info.preva1l.fadlc.models.claim.settings.GroupSetting;
 import info.preva1l.fadlc.persistence.DatabaseType;
 import info.preva1l.fadlc.utils.Logger;
 import lombok.AccessLevel;
@@ -10,6 +11,7 @@ import lombok.NoArgsConstructor;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 @Getter
 @Configuration
@@ -29,6 +31,85 @@ public class Config {
             .charset(StandardCharsets.UTF_8)
             .setNameFormatter(NameFormatters.LOWER_KEBAB_CASE)
             .header(CONFIG_HEADER).build();
+
+    private int maxProfiles = 10;
+
+    private Groups groupDefaults = new Groups();
+
+    @Getter
+    @Configuration
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class Groups {
+        private First first = new First();
+
+        @Getter
+        @Configuration
+        @NoArgsConstructor(access = AccessLevel.PRIVATE)
+        public static class First {
+            private String name = "Default";
+            private Map<GroupSetting, Boolean> settings = Map.of(
+                    GroupSetting.BREAK_BLOCKS, false,
+                    GroupSetting.PLACE_BLOCKS, false,
+                    GroupSetting.ENTER, true
+            );
+        }
+
+        private Second second = new Second();
+
+        @Getter
+        @Configuration
+        @NoArgsConstructor(access = AccessLevel.PRIVATE)
+        public static class Second {
+            private String name = "Group 2";
+            private Map<GroupSetting, Boolean> settings = Map.of(
+                    GroupSetting.BREAK_BLOCKS, false,
+                    GroupSetting.PLACE_BLOCKS, false,
+                    GroupSetting.ENTER, true
+            );
+        }
+
+        private Third third = new Third();
+
+        @Getter
+        @Configuration
+        @NoArgsConstructor(access = AccessLevel.PRIVATE)
+        public static class Third {
+            private String name = "Group 3";
+            private Map<GroupSetting, Boolean> settings = Map.of(
+                    GroupSetting.BREAK_BLOCKS, true,
+                    GroupSetting.PLACE_BLOCKS, true,
+                    GroupSetting.ENTER, true
+            );
+        }
+
+        private Fourth fourth = new Fourth();
+
+        @Getter
+        @Configuration
+        @NoArgsConstructor(access = AccessLevel.PRIVATE)
+        public static class Fourth {
+            private String name = "Group 4";
+            private Map<GroupSetting, Boolean> settings = Map.of(
+                    GroupSetting.BREAK_BLOCKS, true,
+                    GroupSetting.PLACE_BLOCKS, true,
+                    GroupSetting.ENTER, true
+            );
+        }
+
+        private Fifth fifth = new Fifth();
+
+        @Getter
+        @Configuration
+        @NoArgsConstructor(access = AccessLevel.PRIVATE)
+        public static class Fifth {
+            private String name = "Group 5";
+            private Map<GroupSetting, Boolean> settings = Map.of(
+                    GroupSetting.BREAK_BLOCKS, true,
+                    GroupSetting.PLACE_BLOCKS, true,
+                    GroupSetting.ENTER, true
+            );
+        }
+    }
 
     private Jobs jobs = new Jobs();
 

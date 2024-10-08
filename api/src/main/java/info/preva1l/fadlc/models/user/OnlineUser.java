@@ -2,9 +2,7 @@ package info.preva1l.fadlc.models.user;
 
 import info.preva1l.fadlc.models.MessageLocation;
 import info.preva1l.fadlc.models.claim.IClaim;
-import info.preva1l.fadlc.models.claim.IProfileGroup;
-
-import java.util.Map;
+import info.preva1l.fadlc.models.claim.IClaimProfile;
 
 public interface OnlineUser extends User {
     int getAvailableChunks();
@@ -12,7 +10,7 @@ public interface OnlineUser extends User {
     boolean isShowEnterMessages();
     boolean isShowLeaveMessages();
     MessageLocation getMessageLocation();
+    IClaimProfile getClaimWithProfile();
 
     IClaim getClaim();
-    Map<IClaim, IProfileGroup> getTrustedClaims();
 }

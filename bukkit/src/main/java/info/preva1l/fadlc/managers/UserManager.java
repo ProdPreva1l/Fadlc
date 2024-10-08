@@ -8,7 +8,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class UserManager {
+public final class UserManager implements IUserManager {
     private static UserManager instance;
 
     private final Map<String, OnlineUser> usersCacheName = new ConcurrentHashMap<>();
@@ -34,14 +34,17 @@ public class UserManager {
         usersCacheName.remove(username);
     }
 
+    @Override
     public List<OnlineUser> getAllUsers() {
-        return new ArrayList<>(usersCacheName.values());
+        return new ArrayList<>(usersCacheUuid.values());
     }
 
+    @Override
     public Optional<OnlineUser> getUser(String name) {
         return Optional.ofNullable(usersCacheName.get(name));
     }
 
+    @Override
     public Optional<OnlineUser> getUser(UUID uniqueId) {
         return Optional.ofNullable(usersCacheUuid.get(uniqueId));
     }

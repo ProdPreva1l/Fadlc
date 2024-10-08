@@ -2,16 +2,17 @@ package info.preva1l.fadlc.models.user;
 
 import info.preva1l.fadlc.Fadlc;
 import info.preva1l.fadlc.managers.ClaimManager;
+import info.preva1l.fadlc.managers.UserManager;
 import info.preva1l.fadlc.models.MessageLocation;
 import info.preva1l.fadlc.models.claim.IClaim;
-import info.preva1l.fadlc.models.claim.IProfileGroup;
+import info.preva1l.fadlc.models.claim.IClaimProfile;
 import lombok.Getter;
+import lombok.Setter;
 import net.kyori.adventure.audience.Audience;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Map;
 import java.util.UUID;
 
 @Getter
@@ -19,14 +20,20 @@ public class BukkitUser implements OnlineUser, CommandUser {
     private final String name;
     private final UUID uniqueId;
     private Player player = null;
+    @Setter
     private int availableChunks;
+    @Setter
     private boolean viewBorders;
+    @Setter
     private boolean showEnterMessages;
+    @Setter
     private boolean showLeaveMessages;
+    @Setter
     private MessageLocation messageLocation;
+    private int claimWithProfileId;
 
-    public BukkitUser(@NotNull final String name, final UUID uniqueId, int availableChunks,
-                      boolean viewBorders, boolean showEnterMessages, boolean showLeaveMessages, MessageLocation messageLocation) {
+    public BukkitUser(String name, UUID uniqueId, int availableChunks, boolean viewBorders, boolean showEnterMessages,
+                      boolean showLeaveMessages, MessageLocation messageLocation, int claimWithProfileId) {
         this.name = name;
         this.uniqueId = uniqueId;
         this.availableChunks = availableChunks;
@@ -34,6 +41,7 @@ public class BukkitUser implements OnlineUser, CommandUser {
         this.showEnterMessages = showEnterMessages;
         this.showLeaveMessages = showLeaveMessages;
         this.messageLocation = messageLocation;
+        this.claimWithProfileId = claimWithProfileId;
     }
 
     @Override
@@ -55,13 +63,18 @@ public class BukkitUser implements OnlineUser, CommandUser {
     }
 
     @Override
+    public IClaimProfile getClaimWithProfile() {
+        return getClaim().getProfiles().get(getClaimWithProfileId());
+    }
+
+    @Override
     public IClaim getClaim() {
         return ClaimManager.getInstance().getClaimByOwner(uniqueId);
     }
 
-    @Override
-    public Map<IClaim, IProfileGroup> getTrustedClaims() {
-        return Map.of();
+    public void setClaimWithProfile(IClaimProfile profile) {
+        this.claimWithProfileId = profile.getId();
+        UserManager.getInstance().cacheUser(this);
     }
 
     @Override

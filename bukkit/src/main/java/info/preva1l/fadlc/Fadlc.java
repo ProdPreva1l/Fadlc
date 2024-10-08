@@ -15,6 +15,7 @@ import info.preva1l.fadlc.utils.Logger;
 import info.preva1l.fadlc.utils.Metrics;
 import info.preva1l.fadlc.utils.Text;
 import info.preva1l.fadlc.utils.config.BasicConfig;
+import info.preva1l.fadlc.utils.sounds.Sounds;
 import lombok.Getter;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.william278.desertwell.util.UpdateChecker;
@@ -26,7 +27,8 @@ import java.util.List;
 import java.util.stream.Stream;
 
 public final class Fadlc extends JavaPlugin {
-    private static final int SPIGOT_ID = 12341234; //todo: update on resource creation
+    private static final String skibidiToilet = "%%__USERNAME__%% (%%__USER__%%)";
+    private static final int POLYMART_ID = 6616;
     private static final int METRICS_ID = 23412;
     private Version pluginVersion;
 
@@ -53,6 +55,8 @@ public final class Fadlc extends JavaPlugin {
         UserManager.getInstance();
         CommandManager.getInstance();
         Logger.info("Managers initialized!");
+
+        Sounds.update();
 
         loadMenus();
 
@@ -85,9 +89,12 @@ public final class Fadlc extends JavaPlugin {
         Bukkit.getConsoleSender().sendMessage(Text.legacyMessage("&2&l------------------------------"));
         Bukkit.getConsoleSender().sendMessage(Text.legacyMessage("&a  Finally a Decent Land Claim"));
         Bukkit.getConsoleSender().sendMessage(Text.legacyMessage("&a   has successfully started!"));
+        Bukkit.getConsoleSender().sendMessage(Text.legacyMessage("&a  Licenced to: " + skibidiToilet));
         Bukkit.getConsoleSender().sendMessage(Text.legacyMessage("&2&l------------------------------"));
 
-        //Bukkit.getScheduler().runTaskLater(this, this::checkForUpdates, 60L);
+        setupMetrics();
+
+        Bukkit.getScheduler().runTaskLater(this, this::checkForUpdates, 60L);
     }
 
     @Override
@@ -132,14 +139,14 @@ public final class Fadlc extends JavaPlugin {
     private void checkForUpdates() {
         final UpdateChecker checker = UpdateChecker.builder()
                 .currentVersion(pluginVersion)
-                .endpoint(UpdateChecker.Endpoint.SPIGOT)
-                .resource(Integer.toString(SPIGOT_ID))
+                .endpoint(UpdateChecker.Endpoint.POLYMART)
+                .resource(Integer.toString(POLYMART_ID))
                 .build();
         checker.check().thenAccept(checked -> {
             if (checked.isUpToDate()) {
                 return;
             }
-            Bukkit.getConsoleSender().sendMessage(Text.legacyMessage("&f[Fadlc] Fadlc is &#D63C3COUTDATED&f! " +
+            Bukkit.getConsoleSender().sendMessage(Text.legacyMessage("&7[Fadlc]&f Fadlc is &#D63C3COUTDATED&f! " +
                     "&7Current: &#D63C3C%s &7Latest: &#18D53A%s".formatted(checked.getCurrentVersion(), checked.getLatestVersion())));
         });
     }

@@ -8,11 +8,14 @@ import info.preva1l.fadlc.models.claim.ClaimProfile;
 import info.preva1l.fadlc.models.claim.IClaim;
 import info.preva1l.fadlc.models.claim.IClaimProfile;
 import info.preva1l.fadlc.models.user.OfflineUser;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ClaimManager implements IClaimManager {
     private static ClaimManager instance;
     private final Map<UUID, IClaim> claimCache = new ConcurrentHashMap<>();

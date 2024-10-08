@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.zaxxer.hikari.HikariDataSource;
 import info.preva1l.fadlc.Fadlc;
+import info.preva1l.fadlc.managers.PersistenceManager;
 import info.preva1l.fadlc.models.claim.ClaimProfile;
 import info.preva1l.fadlc.models.claim.IClaimProfile;
 import info.preva1l.fadlc.models.claim.IProfileGroup;
@@ -47,7 +48,7 @@ public class ProfileDao implements Dao<IClaimProfile> {
                     final UUID uuid = uniqueId;
                     final String name = resultSet.getString("name");
                     final int id = resultSet.getInt("id");
-                    final List<IProfileGroup> groups = groupDeserialize(gson.fromJson(resultSet.getString("groups"), stringListType));
+                    final Map<Integer, IProfileGroup> groups = groupDeserialize(gson.fromJson(resultSet.getString("groups"), stringListType));
                     final Map<IProfileFlag, Boolean> flags = gson.fromJson(resultSet.getString("flags"), flagsType);
                     final Particle particle = Particle.valueOf(resultSet.getString("border"));
                     return Optional.of(new ClaimProfile(uuid, name, id, groups, flags, particle));
@@ -88,7 +89,7 @@ public class ProfileDao implements Dao<IClaimProfile> {
                             `flags` = excluded.`flags`,
                             `border` = excluded.`border`;""")) {
 
-                String groups = Fadlc.i().getGson().toJson(groupSerialize(profile.getGroups()));
+                String groups = Fadlc.i().getGson().toJson(groupSerialize(profile.getGroups().values()));
                 String flags = Fadlc.i().getGson().toJson(profile.getFlags());
                 statement.setString(1, profile.getUniqueId().toString());
                 statement.setInt(2, profile.getId());
@@ -124,7 +125,7 @@ public class ProfileDao implements Dao<IClaimProfile> {
 
     }
 
-    private List<String> groupSerialize(List<IProfileGroup> groups) {
+    private List<String> groupSerialize(Collection<IProfileGroup> groups) {
         List<String> list = new ArrayList<>();
         for (IProfileGroup group : groups) {
             list.add(group.getUniqueId().toString());
@@ -132,11 +133,13 @@ public class ProfileDao implements Dao<IClaimProfile> {
         return list;
     }
 
-    private List<IProfileGroup> groupDeserialize(List<String> groups) {
-        List<IProfileGroup> list = new ArrayList<>();
+    private Map<Integer, IProfileGroup> groupDeserialize(List<String> groups) {
+        Map<Integer, IProfileGroup> list = new HashMap<>();
         for (String uuidStr : groups) {
             UUID uuid = UUID.fromString(uuidStr);
-            // impl this shit here from persistence manager and what not
+            PersistenceManager.getInstance().get(IProfileGroup.class, uuid).join().ifPresent(group -> {
+                list.put(group.getId(), group);
+            });
         }
         return list;
     }

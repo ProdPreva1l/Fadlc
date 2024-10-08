@@ -1,5 +1,6 @@
 package info.preva1l.fadlc.models;
 
+import info.preva1l.fadlc.config.ServerSettings;
 import info.preva1l.fadlc.managers.ClaimManager;
 import info.preva1l.fadlc.models.user.User;
 import lombok.Getter;
@@ -20,7 +21,11 @@ public class Loc extends LocRef implements ILoc {
     }
 
     public static ILoc fromBukkit(Location location) {
-        return new Loc("", location.getWorld().getName(), location.getBlockX(), location.getBlockY(), location.getBlockZ());
+        return new Loc(ServerSettings.getInstance().getName(), location.getWorld().getName(), location.getBlockX(), location.getBlockY(), location.getBlockZ());
+    }
+
+    public static ILoc fromBukkit(Location location, String server) {
+        return new Loc(server, location.getWorld().getName(), location.getBlockX(), location.getBlockY(), location.getBlockZ());
     }
 
     @Override

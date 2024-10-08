@@ -7,7 +7,7 @@ import java.util.List;
 
 @Getter
 @AllArgsConstructor
-public enum ProfileSetting implements IProfileSetting {
+public enum GroupSetting implements IGroupSetting {
     PLACE_BLOCKS(
             "Allow Block Placing",
             List.of("Whether or not to allow", "player to place blocks.")
@@ -16,7 +16,10 @@ public enum ProfileSetting implements IProfileSetting {
             "Allow Block Breaking",
             List.of("Whether or not to allow", "player to break blocks.")
     ),
-    ;
+    ENTER(
+            "Allow Entry to the Claim",
+            List.of("Whether or not to allow", "player to enter the claim.")
+    );
 
     private final String name;
     private final List<String> description;

@@ -12,6 +12,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.HashMap;
@@ -35,7 +36,7 @@ public class PlayerListeners implements Listener {
 
             if (user.isEmpty()) {
                 onlineUser = new BukkitUser(e.getName(), e.getUniqueId(), 0, true,
-                        true, true, MessageLocation.CHAT); // todo: config first chunks
+                        true, true, MessageLocation.CHAT, 0); // todo: config first chunks
                 PersistenceManager.getInstance().save(OnlineUser.class, onlineUser);
             } else {
                 onlineUser = user.get();
@@ -52,7 +53,7 @@ public class PlayerListeners implements Listener {
     }
 
     @EventHandler
-    public void onLeave(PlayerJoinEvent e) {
+    public void onLeave(PlayerQuitEvent e) {
         leave(e.getPlayer().getUniqueId(), e.getPlayer().getName());
     }
 
