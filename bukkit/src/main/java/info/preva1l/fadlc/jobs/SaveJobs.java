@@ -7,6 +7,7 @@ import info.preva1l.fadlc.managers.UserManager;
 import info.preva1l.fadlc.models.IClaimChunk;
 import info.preva1l.fadlc.models.claim.IClaim;
 import info.preva1l.fadlc.models.claim.IClaimProfile;
+import info.preva1l.fadlc.models.claim.IProfileGroup;
 import info.preva1l.fadlc.models.user.OnlineUser;
 
 import java.time.Duration;
@@ -44,7 +45,10 @@ public class SaveJobs {
         protected void execute() {
             ClaimManager.getInstance().getAllClaims().forEach(f -> {
                     PersistenceManager.getInstance().save(IClaim.class, f);
-                    f.getProfiles().values().forEach(p -> PersistenceManager.getInstance().save(IClaimProfile.class, p));
+                    f.getProfiles().values().forEach(p -> {
+                        PersistenceManager.getInstance().save(IClaimProfile.class, p);
+                        p.getGroups().values().forEach(g -> PersistenceManager.getInstance().save(IProfileGroup.class, g));
+                    });
                     f.getClaimedChunks().keySet().forEach(cUUID ->
                             PersistenceManager.getInstance().save(IClaimChunk.class, ClaimManager.getInstance().getChunk(cUUID)));
             });

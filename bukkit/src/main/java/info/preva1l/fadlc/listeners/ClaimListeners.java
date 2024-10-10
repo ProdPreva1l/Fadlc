@@ -98,7 +98,8 @@ public class ClaimListeners implements Listener {
             ClaimLeaveEvent leaveEvent = new ClaimLeaveEvent(e.getPlayer(), fromClaim, fromChunk);
             Bukkit.getPluginManager().callEvent(leaveEvent);
 
-            Lang.sendMessage(e.getPlayer(), Lang.getInstance().getClaimMessages().getEnter());
+            Lang.sendMessage(e.getPlayer(), Lang.getInstance().getClaimMessages().getLeave()
+                    .replace("%player%", fromClaim.getOwner().getName()));
         }
 
         if (toClaim != null) {
@@ -118,7 +119,8 @@ public class ClaimListeners implements Listener {
                 return;
             }
 
-            Lang.sendMessage(e.getPlayer(), Lang.getInstance().getClaimMessages().getLeave());
+            Lang.sendMessage(e.getPlayer(), Lang.getInstance().getClaimMessages().getEnter()
+                    .replace("%player%", toClaim.getOwner().getName()));
         }
     }
 }

@@ -95,6 +95,8 @@ public class GroupDao implements Dao<IProfileGroup> {
                 statement.setString(4, users);
                 statement.setString(5, flags);
                 statement.execute();
+            } catch (Exception e) {
+                Logger.severe("Failed to save!", e);
             }
         } catch (SQLException e) {
             Logger.severe("Failed to add item to groups!", e);

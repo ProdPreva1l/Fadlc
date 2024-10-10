@@ -47,6 +47,8 @@ public class UserDao implements Dao<OnlineUser> {
                     return Optional.of(new BukkitUser(ownerName, ownerUUID,
                             availableChunks, showBorders, enterMessages, leaveMessages, messageLocation, usingProfile));
                 }
+            } catch (Exception e) {
+                Logger.severe("Failed to get!", e);
             }
         } catch (SQLException e) {
             Logger.severe("Failed to get user!", e);
@@ -71,9 +73,7 @@ public class UserDao implements Dao<OnlineUser> {
      */
     @Override
     public void save(OnlineUser onlineUser) {
-        Logger.info("attempting save");
         try (Connection connection = dataSource.getConnection()) {
-            Logger.info("try 1");
             try (PreparedStatement statement = connection.prepareStatement("""
                     INSERT INTO `users`
                     (`uniqueId`, `username`, `availableChunks`, `showBorders`, `showEnterMessages`, `showLeaveMessages`, `messageLocation`, `usingProfile`)
@@ -86,7 +86,6 @@ public class UserDao implements Dao<OnlineUser> {
                             `showLeaveMessages` = excluded.`showLeaveMessages`,
                             `messageLocation` = excluded.`messageLocation`,
                             `usingProfile` = excluded.`usingProfile`;""")) {
-                Logger.info("try 2");
                 statement.setString(1, onlineUser.getUniqueId().toString());
                 statement.setString(2, onlineUser.getName());
                 statement.setInt(3, onlineUser.getAvailableChunks());
@@ -95,9 +94,7 @@ public class UserDao implements Dao<OnlineUser> {
                 statement.setBoolean(6, onlineUser.isShowLeaveMessages());
                 statement.setString(7, onlineUser.getMessageLocation().name());
                 statement.setInt(8, onlineUser.getClaimWithProfile().getId()); // error?
-                int rowsAffected = statement.executeUpdate();
-                Logger.info("Rows affected: " + rowsAffected);
-                Logger.info("saved");
+                statement.execute();
             } catch (Exception e) {
                 Logger.severe("Failed to save!", e);
             }

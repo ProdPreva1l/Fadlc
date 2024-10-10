@@ -98,6 +98,8 @@ public class ProfileDao implements Dao<IClaimProfile> {
                 statement.setString(5, flags);
                 statement.setString(6, profile.getBorder().name());
                 statement.execute();
+            } catch (Exception e) {
+                Logger.severe("Failed to save!", e);
             }
         } catch (SQLException e) {
             Logger.severe("Failed to add item to profiles!", e);

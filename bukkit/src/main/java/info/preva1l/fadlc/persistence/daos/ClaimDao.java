@@ -114,6 +114,8 @@ public class ClaimDao implements Dao<IClaim> {
                 statement.setString(3, profiles);
                 statement.setString(4, chunks);
                 statement.execute();
+            } catch (Exception e) {
+                Logger.severe("Failed to save!", e);
             }
         } catch (SQLException e) {
             Logger.severe("Failed to add item to claims!", e);

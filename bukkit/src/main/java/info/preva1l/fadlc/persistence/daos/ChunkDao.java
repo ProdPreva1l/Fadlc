@@ -104,6 +104,8 @@ public class ChunkDao implements Dao<IClaimChunk> {
                 statement.setLong(6, chunk.getClaimedSince());
                 statement.setInt(7, chunk.getProfileId());
                 statement.execute();
+            } catch (Exception e) {
+                Logger.severe("Failed to save!", e);
             }
         } catch (SQLException e) {
             Logger.severe("Failed to add item to chunks!", e);
