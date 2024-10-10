@@ -1,14 +1,17 @@
 package info.preva1l.fadlc.models.user;
 
 import info.preva1l.fadlc.Fadlc;
+import info.preva1l.fadlc.config.Lang;
 import info.preva1l.fadlc.managers.ClaimManager;
 import info.preva1l.fadlc.managers.UserManager;
 import info.preva1l.fadlc.models.MessageLocation;
 import info.preva1l.fadlc.models.claim.IClaim;
 import info.preva1l.fadlc.models.claim.IClaimProfile;
+import info.preva1l.fadlc.utils.Text;
 import lombok.Getter;
 import lombok.Setter;
 import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.title.TitlePart;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -70,6 +73,20 @@ public class BukkitUser implements OnlineUser, CommandUser {
     @Override
     public IClaim getClaim() {
         return ClaimManager.getInstance().getClaimByOwner(uniqueId);
+    }
+
+    @Override
+    public void sendMessage(@NotNull String message) {
+        sendMessage(message, true);
+    }
+
+    @Override
+    public void sendMessage(String message, boolean prefixed) {
+        switch (messageLocation) {
+            case CHAT -> getAudience().sendMessage(Text.modernMessage(Lang.getInstance().getPrefix() + message));
+            case HOTBAR -> getAudience().sendActionBar(Text.modernMessage(Lang.getInstance().getPrefix() + message));
+            case TITLE -> getAudience().sendTitlePart(TitlePart.SUBTITLE, Text.modernMessage(Lang.getInstance().getPrefix() + message));
+        }
     }
 
     public void setClaimWithProfile(IClaimProfile profile) {

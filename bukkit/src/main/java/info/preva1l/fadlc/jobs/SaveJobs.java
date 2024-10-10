@@ -44,13 +44,13 @@ public class SaveJobs {
         @Override
         protected void execute() {
             ClaimManager.getInstance().getAllClaims().forEach(f -> {
-                    PersistenceManager.getInstance().save(IClaim.class, f);
+                    PersistenceManager.getInstance().save(IClaim.class, f).join();
                     f.getProfiles().values().forEach(p -> {
-                        PersistenceManager.getInstance().save(IClaimProfile.class, p);
+                        PersistenceManager.getInstance().save(IClaimProfile.class, p).join();
                         p.getGroups().values().forEach(g -> PersistenceManager.getInstance().save(IProfileGroup.class, g));
                     });
                     f.getClaimedChunks().keySet().forEach(cUUID ->
-                            PersistenceManager.getInstance().save(IClaimChunk.class, ClaimManager.getInstance().getChunk(cUUID)));
+                            PersistenceManager.getInstance().save(IClaimChunk.class, ClaimManager.getInstance().getChunk(cUUID)).join());
             });
         }
     }

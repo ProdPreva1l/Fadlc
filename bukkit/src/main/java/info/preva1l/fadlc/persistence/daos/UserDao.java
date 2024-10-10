@@ -95,6 +95,7 @@ public class UserDao implements Dao<OnlineUser> {
                 statement.setString(7, onlineUser.getMessageLocation().name());
                 statement.setInt(8, onlineUser.getClaimWithProfile().getId()); // error?
                 statement.execute();
+                Logger.info("saved " + onlineUser.getName());
             } catch (Exception e) {
                 Logger.severe("Failed to save!", e);
             }

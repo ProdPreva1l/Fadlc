@@ -5,12 +5,14 @@ import de.exlll.configlib.NameFormatters;
 import de.exlll.configlib.YamlConfigurationProperties;
 import de.exlll.configlib.YamlConfigurations;
 import info.preva1l.fadlc.Fadlc;
+import info.preva1l.fadlc.managers.UserManager;
 import info.preva1l.fadlc.utils.Logger;
 import info.preva1l.fadlc.utils.Text;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -70,6 +72,12 @@ public class Lang {
     }
 
     public static void sendMessage(CommandSender sender, String message) {
+        if (sender instanceof Player player) {
+            UserManager.getInstance().getUser(player.getUniqueId()).ifPresent(user -> {
+                user.sendMessage(message);
+            });
+            return;
+        }
         sender.sendMessage(Text.legacyMessage(getInstance().getPrefix() + message));
     }
 

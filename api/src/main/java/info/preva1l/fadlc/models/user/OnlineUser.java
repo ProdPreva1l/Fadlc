@@ -13,4 +13,8 @@ public interface OnlineUser extends User {
     IClaimProfile getClaimWithProfile();
 
     IClaim getClaim();
+
+    void sendMessage(String message);
+
+    void sendMessage(String message, boolean prefixed);
 }
