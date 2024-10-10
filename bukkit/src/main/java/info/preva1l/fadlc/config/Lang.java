@@ -35,7 +35,7 @@ public class Lang {
             .header(CONFIG_HEADER).build();
 
 
-    private String prefix = "&#9555ff&lFADLC &8&l»&r";
+    private String prefix = "&#9555ff&lFADLC &8&l» &r";
 
     private ClaimMessages claimMessages = new ClaimMessages();
 
@@ -67,15 +67,6 @@ public class Lang {
         private String noPermission = "&c&l(!)&r &fInsufficient permission";
         private String unknownArgs = "&c&l(!)&r &fUnknown arguments.";
         private String mustBePlayer = "&c&l(!)&r &fYou must be a player to run this command.";
-    }
-
-    private Errors errors = new Errors();
-
-    @Getter
-    @Configuration
-    @NoArgsConstructor(access = AccessLevel.PRIVATE)
-    public static class Errors {
-
     }
 
     public static void sendMessage(CommandSender sender, String message) {

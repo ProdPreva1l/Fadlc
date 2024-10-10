@@ -32,6 +32,8 @@ public class PlayerListeners implements Listener {
             invalidateIfNoJoin.remove(e.getUniqueId());
         }, 1200L));
 
+
+        System.out.println("getting the person");
         PersistenceManager.getInstance().get(OnlineUser.class, e.getUniqueId()).thenAccept(user -> {
             OnlineUser onlineUser;
 
@@ -39,8 +41,10 @@ public class PlayerListeners implements Listener {
                 onlineUser = new BukkitUser(e.getName(), e.getUniqueId(), 0, true,
                         true, true, MessageLocation.CHAT, 0); // todo: config first chunks
                 PersistenceManager.getInstance().save(OnlineUser.class, onlineUser);
+                System.out.println("saving the online user");
             } else {
                 onlineUser = user.get();
+                System.out.println("we got it");
             }
 
             userManager.cacheUser(onlineUser);

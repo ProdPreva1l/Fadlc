@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 
 @UtilityClass
 public final class Text {
+    private final Pattern FINAL_LEGACY_PATTERN = Pattern.compile("&#(\\w{5}[0-9a-fA-F])");
     private static final Pattern LEGACY_HEX_PATTERN = Pattern.compile("&#[a-fA-F0-9]{6}");
     private static final Pattern MODERN_HEX_PATTERN = Pattern.compile("<#[a-fA-F0-9]{6}>");
 
@@ -114,10 +115,11 @@ public final class Text {
      */
     public String legacyMessage(@NotNull String message) {
         message = miniMessageToLegacy(message);
-        Matcher matcher = LEGACY_HEX_PATTERN.matcher(message);
+
+        Matcher matcher = FINAL_LEGACY_PATTERN.matcher(message);
         StringBuilder buffer = new StringBuilder();
 
-        while (matcher.find()) {
+        while(matcher.find()) {
             matcher.appendReplacement(buffer, ChatColor.of("#" + matcher.group(1)).toString());
         }
 

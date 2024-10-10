@@ -88,8 +88,13 @@ public class ClaimListeners implements Listener {
         IClaimChunk toChunk = claimManager.getChunkAtChunk(to.getChunk().getX(), to.getChunk().getZ(), to.getWorld().getName());
         IClaim fromClaim = claimManager.getClaimAt(fromChunk).orElse(null);
         IClaim toClaim = claimManager.getClaimAt(toChunk).orElse(null);
+        OnlineUser user = UserManager.getInstance().getUser(e.getPlayer().getUniqueId()).orElseThrow();
 
         if (fromClaim != null) {
+            if (toClaim != null && fromClaim.getOwner().equals(toClaim.getOwner())) {
+                return;
+            }
+
             ClaimLeaveEvent leaveEvent = new ClaimLeaveEvent(e.getPlayer(), fromClaim, fromChunk);
             Bukkit.getPluginManager().callEvent(leaveEvent);
 
@@ -97,9 +102,12 @@ public class ClaimListeners implements Listener {
         }
 
         if (toClaim != null) {
-            OnlineUser user = UserManager.getInstance().getUser(e.getPlayer().getUniqueId()).orElseThrow();
             if (!isActionAllowed(user, Loc.fromBukkit(e.getTo()), GroupSetting.ENTER)) {
                 e.setCancelled(true);
+                return;
+            }
+
+            if (fromClaim != null && toClaim.getOwner().equals(fromClaim.getOwner())) {
                 return;
             }
 
