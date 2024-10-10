@@ -56,9 +56,6 @@ public class PlayerListeners implements Listener {
     public void onJoin(PlayerJoinEvent e) {
         BukkitTask task = invalidateIfNoJoin.remove(e.getPlayer().getUniqueId());
         task.cancel();
-        if (UserManager.getInstance().getUser(e.getPlayer().getUniqueId()).isEmpty()) {
-            e.getPlayer().kickPlayer("Failed to load your data!");
-        }
     }
 
     @EventHandler

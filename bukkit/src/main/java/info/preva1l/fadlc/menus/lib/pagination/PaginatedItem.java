@@ -1,9 +1,9 @@
 package info.preva1l.fadlc.menus.lib.pagination;
 
-import org.bukkit.event.inventory.InventoryClickEvent;
+import info.preva1l.fadlc.menus.lib.GuiClickEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.function.Consumer;
 
-public record PaginatedItem(ItemStack itemStack, Consumer<InventoryClickEvent> eventConsumer) {
+public record PaginatedItem(ItemStack itemStack, Consumer<GuiClickEvent> eventConsumer) {
 }
