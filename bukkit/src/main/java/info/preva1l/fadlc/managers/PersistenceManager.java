@@ -48,7 +48,14 @@ public final class PersistenceManager {
             Logger.severe("Tried to perform database action when the database is not connected!");
             return CompletableFuture.completedFuture(Optional.empty());
         }
-        return CompletableFuture.supplyAsync(() -> handler.get(clazz, id));
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                return handler.get(clazz, id);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return Optional.empty();
+        });
     }
 
     public <T extends DatabaseObject> CompletableFuture<Void> save(Class<T> clazz, T t) {

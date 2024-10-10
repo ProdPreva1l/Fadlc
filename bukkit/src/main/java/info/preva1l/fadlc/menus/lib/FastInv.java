@@ -11,6 +11,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
@@ -33,11 +34,11 @@ import java.util.stream.IntStream;
 @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
 public class FastInv implements InventoryHolder {
 
-    private final Map<Integer, Consumer<InventoryClickEvent>> itemHandlers = new HashMap<>();
+    private final Map<Integer, Consumer<GuiClickEvent>> itemHandlers = new HashMap<>();
     private final List<Consumer<InventoryOpenEvent>> openHandlers = new ArrayList<>();
     @Getter(AccessLevel.PROTECTED)
     private final List<Consumer<InventoryCloseEvent>> closeHandlers = new ArrayList<>();
-    private final List<Consumer<InventoryClickEvent>> clickHandlers = new ArrayList<>();
+    private final List<Consumer<GuiClickEvent>> clickHandlers = new ArrayList<>();
 
     private final Inventory inventory;
     private final LayoutManager.MenuType menuType;
@@ -86,6 +87,9 @@ public class FastInv implements InventoryHolder {
     protected void onClick(InventoryClickEvent event) {
     }
 
+    protected void onDrag(InventoryDragEvent event) {
+    }
+
     protected void onClose(InventoryCloseEvent event) {
     }
 
@@ -113,7 +117,7 @@ public class FastInv implements InventoryHolder {
      * @param item    The item to add.
      * @param handler The click handler for the item.
      */
-    public void addItem(ItemStack item, Consumer<InventoryClickEvent> handler) {
+    public void addItem(ItemStack item, Consumer<GuiClickEvent> handler) {
         int slot = this.inventory.firstEmpty();
         if (slot >= 0) {
             setItem(slot, item, handler);
@@ -137,7 +141,7 @@ public class FastInv implements InventoryHolder {
      * @param item    The item to add.
      * @param handler The click handler for the item
      */
-    public void setItem(int slot, ItemStack item, Consumer<InventoryClickEvent> handler) {
+    public void setItem(int slot, ItemStack item, Consumer<GuiClickEvent> handler) {
         if (slot == -1) return;
         this.inventory.setItem(slot, item);
 
@@ -165,7 +169,7 @@ public class FastInv implements InventoryHolder {
      * @param item    The item to add.
      * @param handler The click handler for the item
      */
-    public void setItems(int[] slots, ItemStack item, Consumer<InventoryClickEvent> handler) {
+    public void setItems(int[] slots, ItemStack item, Consumer<GuiClickEvent> handler) {
         for (int slot : slots) {
             setItem(slot, item, handler);
         }
@@ -232,12 +236,25 @@ public class FastInv implements InventoryHolder {
     public void handleClick(InventoryClickEvent e) {
         onClick(e);
 
-        this.clickHandlers.forEach(c -> c.accept(e));
+        this.clickHandlers.forEach(c -> c.accept(new GuiClickEvent((Player) e.getWhoClicked(), e.getSlot(), e.getClick())));
 
-        Consumer<InventoryClickEvent> clickConsumer = this.itemHandlers.get(e.getRawSlot());
+        Consumer<GuiClickEvent> clickConsumer = this.itemHandlers.get(e.getRawSlot());
 
         if (clickConsumer != null) {
-            clickConsumer.accept(e);
+            clickConsumer.accept(new GuiClickEvent((Player) e.getWhoClicked(), e.getSlot(), e.getClick()));
+        }
+    }
+
+    public void handleDrag(InventoryDragEvent e) {
+        onDrag(e);
+
+        for (int slot : e.getNewItems().keySet()) {
+            this.clickHandlers.forEach(c -> c.accept(new GuiClickEvent((Player) e.getWhoClicked(), slot, e.getType())));
+            Consumer<GuiClickEvent> clickConsumer = this.itemHandlers.get(slot);
+
+            if (clickConsumer != null) {
+                clickConsumer.accept(new GuiClickEvent((Player) e.getWhoClicked(), slot, e.getType()));
+            }
         }
     }
 
