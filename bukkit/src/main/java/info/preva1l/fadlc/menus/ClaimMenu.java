@@ -11,6 +11,7 @@ import info.preva1l.fadlc.models.IClaimChunk;
 import info.preva1l.fadlc.models.claim.IClaim;
 import info.preva1l.fadlc.models.user.OnlineUser;
 import info.preva1l.fadlc.utils.Text;
+import info.preva1l.fadlc.utils.Time;
 import info.preva1l.fadlc.utils.sounds.Sounds;
 import net.kyori.adventure.audience.Audience;
 import org.bukkit.Bukkit;
@@ -19,6 +20,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -30,6 +32,8 @@ public class ClaimMenu extends FastInv {
     private final Audience audience;
     private final OnlineUser user;
 
+    private final BukkitTask updateTask;
+
     public ClaimMenu(Player player) {
         super(54, LayoutManager.MenuType.CLAIM);
         this.player = player;
@@ -39,16 +43,31 @@ public class ClaimMenu extends FastInv {
         placeFillerItems();
         placeNavigationButtons();
         placeChunkItems();
+
+        this.updateTask = Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(Fadlc.i(),
+                this::placeChunkItems, 20L, 20L);
+        getCloseHandlers().add((e) -> updateTask.cancel());
     }
 
     private void placeNavigationButtons() {
         int buyChunksSlot = getLayout().buttonSlots().get(LayoutManager.ButtonType.BUY_CHUNKS);
         int changeProfileSlot = getLayout().buttonSlots().get(LayoutManager.ButtonType.CHANGE_CLAIMING_PROFILE);
         int manageProfilesSlot = getLayout().buttonSlots().get(LayoutManager.ButtonType.MANAGE_PROFILES);
+        int userSettingsSlot = getLayout().buttonSlots().get(LayoutManager.ButtonType.PLAYER_SETTINGS);
 
-        setItem(buyChunksSlot, getLang().getItemStack("buy-chunks").getBase());
-        setItem(changeProfileSlot, getLang().getItemStack("switch-profile").getBase());
-        setItem(manageProfilesSlot, getLang().getItemStack("manage-profiles").getBase());
+        setItem(buyChunksSlot, getLang().getItemStack("buy-chunks")
+                .replaceAnywhere("%chunks%", user.getAvailableChunks() + "").getBase(), e -> {
+            Sounds.playSound(player, getLang().getSound("buy-chunks.sound"));
+        });
+        setItem(changeProfileSlot, getLang().getItemStack("switch-profile").getBase(), e -> {
+            Sounds.playSound(player, getLang().getSound("switch-profile.sound"));
+        });
+        setItem(manageProfilesSlot, getLang().getItemStack("manage-profiles").getBase(), e -> {
+            Sounds.playSound(player, getLang().getSound("manage-profiles.sound"));
+        });
+        setItem(userSettingsSlot, getLang().getItemStack("player-settings").getBase(), e -> {
+            Sounds.playSound(player, getLang().getSound("player-settings.sound"));
+        });
     }
 
     private void placeChunkItems() {
@@ -107,13 +126,15 @@ public class ClaimMenu extends FastInv {
                             .replaceAnywhere("%chunk_x%", chunk.getChunkX() + "")
                             .replaceAnywhere("%chunk_z%", chunk.getChunkZ() + "")
                             .replaceAnywhere("%claim_profile%", Text.legacyMessage(claim.getProfiles().get(chunk.getProfileId()).getName()))
-                            .replaceAnywhere("%owner%", claim.getOwner().getName()).getBase();
+                            .replaceAnywhere("%owner%", claim.getOwner().getName())
+                            .replaceAnywhere("%formatted_time%", Time.formatTimeSince(chunk.getClaimedSince())).getBase();
                 }
                 yield getLang().getItemStack("chunks.claimed.other").skullOwner(claim.getOwner().getUniqueId())
                         .replaceAnywhere("%chunk_x%", chunk.getChunkX() + "")
                         .replaceAnywhere("%chunk_z%", chunk.getChunkZ() + "")
                         .replaceAnywhere("%claim_profile%", Text.legacyMessage(claim.getProfiles().get(chunk.getProfileId()).getName()))
-                        .replaceAnywhere("%owner%", claim.getOwner().getName()).getBase();
+                        .replaceAnywhere("%owner%", claim.getOwner().getName())
+                        .replaceAnywhere("%formatted_time%", Time.formatTimeSince(chunk.getClaimedSince())).getBase();
             }
             default -> {
                 ItemBuilder itemBuilder = chunkMaterial(index, chunk);

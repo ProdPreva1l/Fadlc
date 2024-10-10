@@ -70,34 +70,35 @@ lang:
     icon: "BELL"
     model-data: 0
     sound: "click"
-    name: "&fBuy Chunks"
+    name: "&3Buy Chunks"
     lore:
-      - ""
+      - "&fYou have &3%chunks% &fchunks"
+      - "&7Click to purchase more"
   switch-profile:
     icon: "PAPER"
     model-data: 0
     sound: "click"
-    name: "&fSwitch Profile"
+    name: "&3Switch Profile"
     lore:
       - '&7Left Click to cycle up'
       - '&7Right Click to cycle down'
       - '&8-------------------------'
-      - '&f{0}'
-      - '&8> &e{1}'
-      - '&f{2}'
+      - '&f%previous%'
+      - '&8> &3%current%'
+      - '&f%next%'
       - '&8-------------------------'
   manage-profiles:
     icon: "ANVIL"
     model-data: 0
     sound: "click"
-    name: "&fManage Profiles"
+    name: "&3Manage Profiles"
     lore:
-      - ""
+      - "&7Click to manage your claim profiles"
   player-settings:
     icon: "PLAYER_HEAD"
     model-data: 0
     sound: "click"
-    name: "&fSettings"
+    name: "&3Settings"
     lore:
       - "&7Click to manage your settings"
 
