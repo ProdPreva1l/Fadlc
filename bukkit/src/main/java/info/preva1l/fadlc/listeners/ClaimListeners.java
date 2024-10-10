@@ -2,6 +2,7 @@ package info.preva1l.fadlc.listeners;
 
 import info.preva1l.fadlc.api.events.ClaimEnterEvent;
 import info.preva1l.fadlc.api.events.ClaimLeaveEvent;
+import info.preva1l.fadlc.config.Lang;
 import info.preva1l.fadlc.managers.ClaimManager;
 import info.preva1l.fadlc.managers.UserManager;
 import info.preva1l.fadlc.models.IClaimChunk;
@@ -42,6 +43,10 @@ public class ClaimListeners implements Listener {
             return true;
         }
 
+        if (claimAtLocation.get().getOwner().equals(user)) {
+            return true;
+        }
+
         IProfileGroup group = claimAtLocation.get().getProfile(location.getChunk()).orElseThrow().getPlayerGroup(user);
 
         if (group == null) {
@@ -58,7 +63,8 @@ public class ClaimListeners implements Listener {
             return;
         }
         event.setCancelled(true);
-        // todo: send message
+
+        Lang.sendMessage(event.getPlayer(), Lang.getInstance().getPrevention().getPlaceBlocks());
     }
 
     @EventHandler
@@ -68,7 +74,8 @@ public class ClaimListeners implements Listener {
             return;
         }
         event.setCancelled(true);
-        // todo: send message
+
+        Lang.sendMessage(event.getPlayer(), Lang.getInstance().getPrevention().getBreakBlocks());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -86,10 +93,16 @@ public class ClaimListeners implements Listener {
             ClaimLeaveEvent leaveEvent = new ClaimLeaveEvent(e.getPlayer(), fromClaim, fromChunk);
             Bukkit.getPluginManager().callEvent(leaveEvent);
 
-            // todo: send message
+            Lang.sendMessage(e.getPlayer(), Lang.getInstance().getClaimMessages().getEnter());
         }
 
         if (toClaim != null) {
+            OnlineUser user = UserManager.getInstance().getUser(e.getPlayer().getUniqueId()).orElseThrow();
+            if (!isActionAllowed(user, Loc.fromBukkit(e.getTo()), GroupSetting.ENTER)) {
+                e.setCancelled(true);
+                return;
+            }
+
             ClaimEnterEvent enterEvent = new ClaimEnterEvent(e.getPlayer(), toClaim, toChunk);
             Bukkit.getPluginManager().callEvent(enterEvent);
             if (enterEvent.isCancelled()) {
@@ -97,7 +110,7 @@ public class ClaimListeners implements Listener {
                 return;
             }
 
-            // todo: send message
+            Lang.sendMessage(e.getPlayer(), Lang.getInstance().getClaimMessages().getLeave());
         }
     }
 }

@@ -31,6 +31,7 @@ public class PlayerListeners implements Listener {
             leave(e.getUniqueId(), e.getName());
             invalidateIfNoJoin.remove(e.getUniqueId());
         }, 1200L));
+
         PersistenceManager.getInstance().get(OnlineUser.class, e.getUniqueId()).thenAccept(user -> {
             OnlineUser onlineUser;
 
@@ -43,6 +44,7 @@ public class PlayerListeners implements Listener {
             }
 
             userManager.cacheUser(onlineUser);
+            System.out.println("cached");
         });
     }
 
@@ -54,10 +56,15 @@ public class PlayerListeners implements Listener {
 
     @EventHandler
     public void onLeave(PlayerQuitEvent e) {
+        userManager.getUser(e.getPlayer().getUniqueId()).ifPresent(user -> {
+            PersistenceManager.getInstance().save(OnlineUser.class, user);
+        });
+
         leave(e.getPlayer().getUniqueId(), e.getPlayer().getName());
     }
 
     private void leave(UUID uuid, String name) {
+        System.out.println("leave");
         userManager.invalidate(uuid);
         userManager.invalidate(name);
     }

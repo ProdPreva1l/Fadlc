@@ -1,5 +1,6 @@
 package info.preva1l.fadlc.managers;
 
+import info.preva1l.fadlc.config.ServerSettings;
 import info.preva1l.fadlc.models.ClaimChunk;
 import info.preva1l.fadlc.models.IClaimChunk;
 import info.preva1l.fadlc.models.ILoc;
@@ -64,7 +65,12 @@ public final class ClaimManager implements IClaimManager {
         return new ArrayList<>(claimCache.values());
     }
 
+    public List<IClaimChunk> getClaimedChunks() {
+        return new ArrayList<>(chunkCache.values());
+    }
+
     public void cacheChunk(IClaimChunk claimChunk) {
+        if (!claimChunk.getServer().equals(ServerSettings.getInstance().getName())) return;
         chunkCache.put(claimChunk.getUniqueId(), claimChunk);
     }
 
@@ -98,7 +104,7 @@ public final class ClaimManager implements IClaimManager {
         }
 
         UUID uuid = UUID.randomUUID();
-        IClaimChunk newChunk = new ClaimChunk(x, z, world, "", uuid, -1, -1);
+        IClaimChunk newChunk = new ClaimChunk(x, z, world, ServerSettings.getInstance().getName(), uuid, -1, -1);
         cacheChunk(newChunk);
         return newChunk;
     }

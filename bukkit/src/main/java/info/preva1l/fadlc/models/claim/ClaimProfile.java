@@ -38,7 +38,7 @@ public class ClaimProfile implements IClaimProfile {
     }
 
     /**
-     * Uses a dirty cache technique, its kinda goofy but it works ong.
+     * Uses a dirty cache technique, its kinda goofy, but it works ong.
      * <p>
      *     If the user somehow ends up in more than 1 group it takes them out of the lowest priority.
      * </p>
@@ -56,7 +56,7 @@ public class ClaimProfile implements IClaimProfile {
                 .filter(g -> g.getUsers().contains(user))
                 .sorted(Comparator.comparing(IProfileGroup::getId)).toList());
 
-        IProfileGroup group = usersGroups.get(usersGroups.size() - 1);
+        IProfileGroup group = usersGroups.isEmpty() ? null : usersGroups.get(usersGroups.size() - 1);
 
         if (usersGroups.size() > 1) {
             while (usersGroups.size() > 1) {

@@ -18,7 +18,6 @@ public interface IAdapter {
 
     IClaimChunk chunk(Chunk chunk);
 
-
     ILoc location(Location location, String server);
 
     ILoc location(Location location);

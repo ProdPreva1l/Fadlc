@@ -30,7 +30,7 @@ public final class Fadlc extends JavaPlugin {
     private static final String skibidiToilet = "%%__USERNAME__%% (%%__USER__%%)";
     private static final int POLYMART_ID = 6616;
     private static final int METRICS_ID = 23412;
-    private Version pluginVersion;
+    private final Version pluginVersion = Version.fromString(getDescription().getVersion());
 
     @Getter private static Fadlc instance;
     @Getter private BukkitAudiences audiences;
@@ -44,7 +44,6 @@ public final class Fadlc extends JavaPlugin {
     public void onEnable() {
         audiences = BukkitAudiences.create(this);
         gson = new Gson();
-        pluginVersion = Version.fromString(getDescription().getVersion());
         instance = this;
 
         // Init the managers
@@ -86,13 +85,13 @@ public final class Fadlc extends JavaPlugin {
         LandClaimsAPI.setInstance(new ImplLandClaimsAPI());
         Logger.info("API Loaded!");
 
+        setupMetrics();
+
         Bukkit.getConsoleSender().sendMessage(Text.legacyMessage("&2&l------------------------------"));
         Bukkit.getConsoleSender().sendMessage(Text.legacyMessage("&a  Finally a Decent Land Claim"));
         Bukkit.getConsoleSender().sendMessage(Text.legacyMessage("&a   has successfully started!"));
         Bukkit.getConsoleSender().sendMessage(Text.legacyMessage("&a  Licenced to: " + skibidiToilet));
         Bukkit.getConsoleSender().sendMessage(Text.legacyMessage("&2&l------------------------------"));
-
-        setupMetrics();
 
         Bukkit.getScheduler().runTaskLater(this, this::checkForUpdates, 60L);
     }
@@ -132,6 +131,7 @@ public final class Fadlc extends JavaPlugin {
 
         metrics = new Metrics(this, METRICS_ID);
         metrics.addCustomChart(new Metrics.SingleLineChart("claims_created", () -> ClaimManager.getInstance().getAllClaims().size()));
+        metrics.addCustomChart(new Metrics.SingleLineChart("chunks_claimed", () -> ClaimManager.getInstance().getClaimedChunks().size()));
 
         Logger.info("Metrics Logging Started!");
     }
