@@ -39,7 +39,7 @@ public class PlayerListeners implements Listener {
 
             if (user.isEmpty()) {
                 onlineUser = new BukkitUser(e.getName(), e.getUniqueId(), 0, true,
-                        true, true, MessageLocation.CHAT, 0); // todo: config first chunks
+                        true, true, MessageLocation.CHAT, 1); // todo: config first chunks
                 PersistenceManager.getInstance().save(OnlineUser.class, onlineUser);
                 System.out.println("saving the online user");
             } else {
