@@ -1,4 +1,4 @@
-package info.preva1l.fadlc.persistence.daos;
+package info.preva1l.fadlc.persistence.daos.sqlite;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -13,7 +13,6 @@ import info.preva1l.fadlc.models.claim.settings.ProfileFlag;
 import info.preva1l.fadlc.persistence.Dao;
 import info.preva1l.fadlc.utils.Logger;
 import lombok.AllArgsConstructor;
-import org.bukkit.Particle;
 
 import java.lang.reflect.Type;
 import java.sql.Connection;
@@ -23,7 +22,7 @@ import java.sql.SQLException;
 import java.util.*;
 
 @AllArgsConstructor
-public class ProfileDao implements Dao<IClaimProfile> {
+public class SQLiteProfileDao implements Dao<IClaimProfile> {
     private final HikariDataSource dataSource;
     private static final Type stringListType = new TypeToken<List<String>>(){}.getType();
     private static final Type flagsType = new TypeToken<Map<ProfileFlag, Boolean>>(){}.getType();
@@ -50,8 +49,8 @@ public class ProfileDao implements Dao<IClaimProfile> {
                     final int id = resultSet.getInt("id");
                     final Map<Integer, IProfileGroup> groups = groupDeserialize(gson.fromJson(resultSet.getString("groups"), stringListType));
                     final Map<IProfileFlag, Boolean> flags = gson.fromJson(resultSet.getString("flags"), flagsType);
-                    final Particle particle = Particle.valueOf(resultSet.getString("border"));
-                    return Optional.of(new ClaimProfile(uuid, name, id, groups, flags, particle));
+                    final String border = resultSet.getString("border");
+                    return Optional.of(new ClaimProfile(uuid, name, id, groups, flags, border));
                 }
             }
         } catch (SQLException e) {
@@ -96,7 +95,7 @@ public class ProfileDao implements Dao<IClaimProfile> {
                 statement.setString(3, profile.getName());
                 statement.setString(4, groups);
                 statement.setString(5, flags);
-                statement.setString(6, profile.getBorder().name());
+                statement.setString(6, profile.getBorder());
                 statement.execute();
             } catch (Exception e) {
                 Logger.severe("Failed to save!", e);

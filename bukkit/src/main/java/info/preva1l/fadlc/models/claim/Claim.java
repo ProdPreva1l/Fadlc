@@ -33,10 +33,8 @@ public class Claim implements IClaim {
     }
 
     @Override
-    public void setProfile(IClaimChunk chunk, int profile) {
-        chunk.setProfileId(1);
-        claimedChunks.put(chunk.getUniqueId(), profile);
-        ClaimManager.getInstance().cacheChunk(chunk);
+    public void updateProfile(IClaimProfile profile) {
+        profiles.put(profile.getId(), profile);
         ClaimManager.getInstance().updateClaim(this);
     }
 }

@@ -19,5 +19,5 @@ public interface IClaim extends DatabaseObject {
 
     void claimChunk(IClaimChunk chunk);
 
-    void setProfile(IClaimChunk chunk, int profile);
+    void updateProfile(IClaimProfile profile);
 }

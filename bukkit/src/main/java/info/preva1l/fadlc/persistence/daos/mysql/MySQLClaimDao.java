@@ -1,4 +1,4 @@
-package info.preva1l.fadlc.persistence.daos;
+package info.preva1l.fadlc.persistence.daos.mysql;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -24,7 +24,7 @@ import java.sql.SQLException;
 import java.util.*;
 
 @AllArgsConstructor
-public class ClaimDao implements Dao<IClaim> {
+public class MySQLClaimDao implements Dao<IClaim> {
     private final HikariDataSource dataSource;
     private static final Type stringListType = new TypeToken<List<String>>(){}.getType();
 
@@ -99,14 +99,13 @@ public class ClaimDao implements Dao<IClaim> {
     public void save(IClaim claim) {
         try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement("""
-                        INSERT INTO `claims`
-                        (`ownerUUID`, `ownerUsername`, `profiles`, `chunks`)
-                        VALUES (?,?,?,?)
-                        ON CONFLICT(`ownerUUID`) DO UPDATE SET
-                            `ownerUsername` = excluded.`ownerUsername`,
-                            `profiles` = excluded.`profiles`,
-                            `chunks` = excluded.`chunks`;""")) {
-
+                     INSERT INTO `claims`
+                         (`ownerUUID`, `ownerUsername`, `profiles`, `chunks`)
+                     VALUES (?, ?, ?, ?)
+                     ON DUPLICATE KEY UPDATE
+                         `ownerUsername` = VALUES(`ownerUsername`),
+                         `profiles` = VALUES(`profiles`),
+                         `chunks` = VALUES(`chunks`);""")) {
                 String profiles = Fadlc.i().getGson().toJson(profileSerialize(claim.getProfiles()));
                 String chunks = Fadlc.i().getGson().toJson(chunkSerialize(claim.getClaimedChunks()));
                 statement.setString(1, claim.getOwner().getUniqueId().toString());

@@ -8,6 +8,7 @@ import info.preva1l.fadlc.menus.lib.FastInv;
 import info.preva1l.fadlc.menus.lib.ItemBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -21,6 +22,16 @@ public abstract class PaginatedFastInv extends FastInv {
     private List<Integer> paginationMappings;
     private final List<PaginatedItem> paginatedItems = new ArrayList<>();
 
+    private final BukkitTask updateTask;
+
+    protected PaginatedFastInv(Player player, LayoutManager.MenuType menuType) {
+        this(menuType.getSize(), menuType.getTitle(), player, menuType);
+    }
+
+    protected PaginatedFastInv(Player player, LayoutManager.MenuType menuType, @NotNull List<Integer> paginationMappings) {
+        this(menuType.getSize(), menuType.getTitle(), player, menuType, paginationMappings);
+    }
+
     protected PaginatedFastInv(int size, @NotNull String title, @NotNull Player player, LayoutManager.MenuType menuType) {
         super(size, title, menuType);
         this.player = player;
@@ -30,8 +41,9 @@ public abstract class PaginatedFastInv extends FastInv {
                 31, 32, 33, 34, 38, 39, 40,
                 41, 42, 43);
 
-        getCloseHandlers().add((e) -> Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(Fadlc.i(),
-                this::updatePagination, 20L, 20L));
+
+        this.updateTask = Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(Fadlc.i(), this::updatePagination, 20L, 20L);
+        getCloseHandlers().add((e) -> updateTask.cancel());
     }
 
     protected PaginatedFastInv(int size, @NotNull String title, @NotNull Player player, LayoutManager.MenuType menuType, @NotNull List<Integer> paginationMappings) {
@@ -39,8 +51,8 @@ public abstract class PaginatedFastInv extends FastInv {
         this.player = player;
         this.paginationMappings = paginationMappings;
 
-        getCloseHandlers().add((e) -> Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(Fadlc.i(),
-                this::updatePagination, 20L, 20L));
+        this.updateTask = Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(Fadlc.i(), this::updatePagination, 20L, 20L);
+        getCloseHandlers().add((e) -> updateTask.cancel());
     }
 
     protected void setPaginationMappings(List<Integer> list) {

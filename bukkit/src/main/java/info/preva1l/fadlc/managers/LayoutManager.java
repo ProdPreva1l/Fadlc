@@ -103,6 +103,7 @@ public class LayoutManager {
         String[] temp = fileName.split("/");
         return switch (temp[temp.length - 1]) {
             case "claim.yml": yield MenuType.CLAIM;
+            case "profile.yml": yield MenuType.PROFILES;
             default: throw new IllegalStateException("The config file %s is not related to a GuiLayout".formatted(fileName));
         };
     }

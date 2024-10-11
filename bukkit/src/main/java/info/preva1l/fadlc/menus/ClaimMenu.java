@@ -85,6 +85,7 @@ public class ClaimMenu extends FastInv {
         });
         setItem(manageProfilesSlot, getLang().getItemStack("manage-profiles").getBase(), e -> {
             Sounds.playSound(player, getLang().getSound("manage-profiles.sound"));
+            new ProfilesMenu(player).open(player);
         });
         setItem(userSettingsSlot, getLang().getItemStack("player-settings").getBase(), e -> {
             Sounds.playSound(player, getLang().getSound("player-settings.sound"));

@@ -1,4 +1,4 @@
-package info.preva1l.fadlc.persistence.daos;
+package info.preva1l.fadlc.persistence.daos.mysql;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -24,7 +24,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @AllArgsConstructor
-public class GroupDao implements Dao<IProfileGroup> {
+public class MySQLGroupDao implements Dao<IProfileGroup> {
     private final HikariDataSource dataSource;
     private static final Type settingsType = new TypeToken<Map<GroupSetting, Boolean>>(){}.getType();
     private static final Type usersType = new TypeToken<List<OfflineUser>>(){}.getType();
@@ -79,14 +79,13 @@ public class GroupDao implements Dao<IProfileGroup> {
     public void save(IProfileGroup group) {
         try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement("""
-                        INSERT INTO `groups`
-                        (`uuid`, `id`, `name`, `users`, `settings`)
-                        VALUES (?,?,?,?,?)
-                        ON CONFLICT(`uuid`) DO UPDATE SET
-                            `name` = excluded.`name`,
-                            `users` = excluded.`users`,
-                            `settings` = excluded.`settings`;""")) {
-
+                   INSERT INTO `groups`
+                       (`uuid`, `id`, `name`, `users`, `settings`)
+                   VALUES (?, ?, ?, ?, ?)
+                   ON DUPLICATE KEY UPDATE
+                       `name` = VALUES(`name`),
+                       `users` = VALUES(`users`),
+                       `settings` = VALUES(`settings`);""")) {
                 String users = Fadlc.i().getGson().toJson(group.getUsers());
                 String flags = Fadlc.i().getGson().toJson(group.getSettings());
                 statement.setString(1, group.getUniqueId().toString());

@@ -25,6 +25,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Stream;
 
 public final class Fadlc extends JavaPlugin {
@@ -36,6 +37,7 @@ public final class Fadlc extends JavaPlugin {
     @Getter private static Fadlc instance;
     @Getter private BukkitAudiences audiences;
     @Getter private Gson gson;
+    @Getter private Random random;
 
     private ClaimBorderJob borderJob;
 
@@ -45,6 +47,7 @@ public final class Fadlc extends JavaPlugin {
     public void onEnable() {
         audiences = BukkitAudiences.create(this);
         gson = new Gson();
+        random = new Random(System.currentTimeMillis());
         instance = this;
 
         // Init the managers
@@ -94,7 +97,8 @@ public final class Fadlc extends JavaPlugin {
         Bukkit.getConsoleSender().sendMessage(Text.legacyMessage("&a   has successfully started!"));
         Bukkit.getConsoleSender().sendMessage(Text.legacyMessage("&a  Licenced to: " + skibidiToilet
                 .replace("%%", "")
-                .replace("__USERNAME__", "Not Logged In").replace("__USER__", "Self Compiled Build")));
+                .replace("__USERNAME__", "Not Logged In")
+                .replace("__USER__", "Self Compiled Build")));
         Bukkit.getConsoleSender().sendMessage(Text.legacyMessage("&2&l------------------------------"));
 
         Bukkit.getScheduler().runTaskLater(this, this::checkForUpdates, 60L);
@@ -126,7 +130,10 @@ public final class Fadlc extends JavaPlugin {
 
     private void loadMenus() {
         Logger.info("Loading Menus...");
-        LayoutManager.getInstance().loadLayout(new BasicConfig(this, "menus/claim.yml"));
+        Stream.of(
+                new BasicConfig(this, "menus/claim.yml"),
+                new BasicConfig(this, "menus/profiles.yml")
+        ).forEach(LayoutManager.getInstance()::loadLayout);
         Logger.info("Menus Loaded!");
     }
 

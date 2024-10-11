@@ -3,13 +3,15 @@ package info.preva1l.fadlc.persistence.handlers;
 import com.zaxxer.hikari.HikariDataSource;
 import info.preva1l.fadlc.Fadlc;
 import info.preva1l.fadlc.config.Config;
+import info.preva1l.fadlc.models.IClaimChunk;
 import info.preva1l.fadlc.models.claim.IClaim;
 import info.preva1l.fadlc.models.claim.IClaimProfile;
+import info.preva1l.fadlc.models.claim.IProfileGroup;
+import info.preva1l.fadlc.models.user.OnlineUser;
 import info.preva1l.fadlc.persistence.Dao;
 import info.preva1l.fadlc.persistence.DatabaseHandler;
 import info.preva1l.fadlc.persistence.DatabaseObject;
-import info.preva1l.fadlc.persistence.daos.ClaimDao;
-import info.preva1l.fadlc.persistence.daos.ProfileDao;
+import info.preva1l.fadlc.persistence.daos.mysql.*;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
@@ -106,8 +108,11 @@ public class MySQLHandler implements DatabaseHandler {
     }
 
     public void registerDaos() {
-        registerDao(IClaim.class, new ClaimDao(dataSource));
-        registerDao(IClaimProfile.class, new ProfileDao(dataSource));
+        registerDao(IClaim.class, new MySQLClaimDao(dataSource));
+        registerDao(IClaimProfile.class, new MySQLProfileDao(dataSource));
+        registerDao(OnlineUser.class, new MySQLUserDao(dataSource));
+        registerDao(IClaimChunk.class, new MySQLChunkDao(dataSource));
+        registerDao(IProfileGroup.class, new MySQLGroupDao(dataSource));
     }
 
     @Override

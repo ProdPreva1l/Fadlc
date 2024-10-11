@@ -34,6 +34,29 @@ public class Config {
 
     private int maxProfiles = 10;
 
+    private Formatting formatting = new Formatting();
+
+    @Getter
+    @Configuration
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class Formatting {
+        private String numbers = "#,###.00";
+
+        private Time time = new Time();
+
+        @Getter
+        @Configuration
+        @NoArgsConstructor(access = AccessLevel.PRIVATE)
+        public static class Time {
+            private String seconds = "%ds";
+            private String minutes = "%dm, %ds";
+            private String hours = "%dh, %dm, %ds";
+            private String days = "%dd, %dh, %dm, %ds";
+            private String months = "%dm, %dd, %dh, %dm, %ds";
+            private String years = "%dy, %dm, %dd, %dh, %dm, %ds";
+        }
+    }
+
     private Groups groupDefaults = new Groups();
 
     @Getter
@@ -109,6 +132,8 @@ public class Config {
                     GroupSetting.ENTER, true
             );
         }
+
+        private String owner = "Owner";
     }
 
     private Jobs jobs = new Jobs();

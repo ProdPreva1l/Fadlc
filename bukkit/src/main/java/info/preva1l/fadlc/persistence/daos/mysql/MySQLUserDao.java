@@ -1,4 +1,4 @@
-package info.preva1l.fadlc.persistence.daos;
+package info.preva1l.fadlc.persistence.daos.mysql;
 
 import com.zaxxer.hikari.HikariDataSource;
 import info.preva1l.fadlc.models.MessageLocation;
@@ -17,7 +17,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @AllArgsConstructor
-public class UserDao implements Dao<OnlineUser> {
+public class MySQLUserDao implements Dao<OnlineUser> {
     private final HikariDataSource dataSource;
 
     /**
@@ -76,16 +76,16 @@ public class UserDao implements Dao<OnlineUser> {
         try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement("""
                     INSERT INTO `users`
-                    (`uniqueId`, `username`, `availableChunks`, `showBorders`, `showEnterMessages`, `showLeaveMessages`, `messageLocation`, `usingProfile`)
-                    VALUES (?,?,?,?,?,?,?,?)
-                    ON CONFLICT(`uniqueId`) DO UPDATE SET
-                            `username` = excluded.`username`,
-                            `availableChunks` = excluded.`availableChunks`,
-                            `showBorders` = excluded.`showBorders`,
-                            `showEnterMessages` = excluded.`showEnterMessages`,
-                            `showLeaveMessages` = excluded.`showLeaveMessages`,
-                            `messageLocation` = excluded.`messageLocation`,
-                            `usingProfile` = excluded.`usingProfile`;""")) {
+                        (`uniqueId`, `username`, `availableChunks`, `showBorders`, `showEnterMessages`, `showLeaveMessages`, `messageLocation`, `usingProfile`)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    ON DUPLICATE KEY UPDATE
+                        `username` = VALUES(`username`),
+                        `availableChunks` = VALUES(`availableChunks`),
+                        `showBorders` = VALUES(`showBorders`),
+                        `showEnterMessages` = VALUES(`showEnterMessages`),
+                        `showLeaveMessages` = VALUES(`showLeaveMessages`),
+                        `messageLocation` = VALUES(`messageLocation`),
+                        `usingProfile` = VALUES(`usingProfile`);""")) {
                 statement.setString(1, onlineUser.getUniqueId().toString());
                 statement.setString(2, onlineUser.getName());
                 statement.setInt(3, onlineUser.getAvailableChunks());
@@ -95,7 +95,6 @@ public class UserDao implements Dao<OnlineUser> {
                 statement.setString(7, onlineUser.getMessageLocation().name());
                 statement.setInt(8, onlineUser.getClaimWithProfile().getId()); // error?
                 statement.execute();
-                Logger.info("saved " + onlineUser.getName());
             } catch (Exception e) {
                 Logger.severe("Failed to save!", e);
             }

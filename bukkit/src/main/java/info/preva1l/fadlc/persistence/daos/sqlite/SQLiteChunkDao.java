@@ -1,4 +1,4 @@
-package info.preva1l.fadlc.persistence.daos;
+package info.preva1l.fadlc.persistence.daos.sqlite;
 
 import com.zaxxer.hikari.HikariDataSource;
 import info.preva1l.fadlc.models.ClaimChunk;
@@ -17,7 +17,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @AllArgsConstructor
-public class ChunkDao implements Dao<IClaimChunk> {
+public class SQLiteChunkDao implements Dao<IClaimChunk> {
     private final HikariDataSource dataSource;
 
     /**

@@ -1,10 +1,13 @@
 package info.preva1l.fadlc.models.claim;
 
+import info.preva1l.fadlc.Fadlc;
 import info.preva1l.fadlc.models.claim.settings.IProfileFlag;
 import info.preva1l.fadlc.models.claim.settings.ProfileFlag;
+import info.preva1l.fadlc.models.user.OnlineUser;
 import info.preva1l.fadlc.models.user.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.bukkit.Material;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -12,16 +15,18 @@ import java.util.concurrent.ConcurrentHashMap;
 @Getter
 @AllArgsConstructor
 public class ClaimProfile implements IClaimProfile {
+    private final IClaim parent;
     private final UUID uniqueId;
     private String name;
     private final int id;
+    private Material icon;
     private final Map<Integer, IProfileGroup> groups;
     private final Map<IProfileFlag, Boolean> flags;
     private String border;
 
     private final Map<User, IProfileGroup> groupCache = new ConcurrentHashMap<>();
 
-    public static ClaimProfile baseProfile(String player, int id) {
+    public static ClaimProfile baseProfile(OnlineUser user, int id) {
         Map<IProfileFlag, Boolean> flags = new HashMap<>();
         for (ProfileFlag flag : ProfileFlag.values()) {
             flags.put(flag, flag.isEnabledByDefault());
@@ -33,7 +38,38 @@ public class ClaimProfile implements IClaimProfile {
                 4, ProfileGroup.rankFour(),
                 5, ProfileGroup.rankFive()
         );
-        return new ClaimProfile(UUID.randomUUID(), "&7%s's Claim".formatted(player), id, groups, flags, "default");
+        return new ClaimProfile(user.getClaim(), UUID.randomUUID(), "&7%s's Claim".formatted(user.getName()), id, getRandomMaterial(), groups, flags, "default");
+    }
+
+    private static Material getRandomMaterial() {
+        for (int i = 0; i < 2; i++) {
+            Material[] materials = Material.values();
+            Material material = materials[Fadlc.getInstance().getRandom().nextInt(materials.length)];
+            if (material.isAir() || !material.isItem()) {
+                --i;
+                continue;
+            }
+            return material;
+        }
+        return Material.BLACK_WOOL;
+    }
+
+    @Override
+    public void setName(String name) {
+        this.name = name;
+        getParent().updateProfile(this);
+    }
+
+    @Override
+    public void setIcon(Material icon) {
+        this.icon = icon;
+        getParent().updateProfile(this);
+    }
+
+    @Override
+    public void setBorder(String border) {
+        this.border = border;
+        getParent().updateProfile(this);
     }
 
     /**

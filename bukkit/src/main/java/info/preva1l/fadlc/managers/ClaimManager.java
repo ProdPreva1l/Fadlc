@@ -8,10 +8,9 @@ import info.preva1l.fadlc.models.claim.Claim;
 import info.preva1l.fadlc.models.claim.ClaimProfile;
 import info.preva1l.fadlc.models.claim.IClaim;
 import info.preva1l.fadlc.models.claim.IClaimProfile;
-import info.preva1l.fadlc.models.user.OfflineUser;
+import info.preva1l.fadlc.models.user.OnlineUser;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import org.bukkit.Bukkit;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -44,17 +43,13 @@ public final class ClaimManager implements IClaimManager {
     }
 
     @Override
-    public IClaim getClaimByOwner(UUID uniqueId) {
-        IClaim claim = claimCache.get(uniqueId);
+    public IClaim getClaimByOwner(OnlineUser user) {
+        IClaim claim = claimCache.get(user.getUniqueId());
         if (claim == null) {
-            String name = Bukkit.getOfflinePlayer(uniqueId).getName();
+            String name = user.getName();
             Map<Integer, IClaimProfile> baseProfiles = new HashMap<>();
-            baseProfiles.put(1, ClaimProfile.baseProfile(name, 1));
-            baseProfiles.put(2, ClaimProfile.baseProfile(name, 2));
-            baseProfiles.put(3, ClaimProfile.baseProfile(name, 3));
-            baseProfiles.put(4, ClaimProfile.baseProfile(name, 4));
-            baseProfiles.put(5, ClaimProfile.baseProfile(name, 5));
-            claim = new Claim(new OfflineUser(uniqueId, name), new HashMap<>(), baseProfiles);
+            baseProfiles.put(1, ClaimProfile.baseProfile(user, 1));
+            claim = new Claim(user, new HashMap<>(), baseProfiles);
             updateClaim(claim);
         }
         return claim;

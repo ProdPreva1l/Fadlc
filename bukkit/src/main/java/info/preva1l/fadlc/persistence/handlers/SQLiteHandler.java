@@ -12,7 +12,7 @@ import info.preva1l.fadlc.models.user.OnlineUser;
 import info.preva1l.fadlc.persistence.Dao;
 import info.preva1l.fadlc.persistence.DatabaseHandler;
 import info.preva1l.fadlc.persistence.DatabaseObject;
-import info.preva1l.fadlc.persistence.daos.*;
+import info.preva1l.fadlc.persistence.daos.sqlite.*;
 import info.preva1l.fadlc.utils.Logger;
 import lombok.Getter;
 import org.jetbrains.annotations.Blocking;
@@ -105,11 +105,11 @@ public class SQLiteHandler implements DatabaseHandler {
     }
 
     public void registerDaos() {
-        registerDao(IClaim.class, new ClaimDao(dataSource));
-        registerDao(IClaimProfile.class, new ProfileDao(dataSource));
-        registerDao(OnlineUser.class, new UserDao(dataSource));
-        registerDao(IClaimChunk.class, new ChunkDao(dataSource));
-        registerDao(IProfileGroup.class, new GroupDao(dataSource));
+        registerDao(IClaim.class, new SQLiteClaimDao(dataSource));
+        registerDao(IClaimProfile.class, new SQLiteProfileDao(dataSource));
+        registerDao(OnlineUser.class, new SQLiteUserDao(dataSource));
+        registerDao(IClaimChunk.class, new SQLiteChunkDao(dataSource));
+        registerDao(IProfileGroup.class, new SQLiteGroupDao(dataSource));
     }
 
     @Override
