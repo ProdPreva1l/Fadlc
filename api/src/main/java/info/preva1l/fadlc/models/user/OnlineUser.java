@@ -6,11 +6,28 @@ import info.preva1l.fadlc.models.claim.IClaimProfile;
 
 public interface OnlineUser extends User {
     int getAvailableChunks();
+
+    void setAvailableChunks(int newAmount);
+
     boolean isViewBorders();
+
+    void setViewBorders(boolean viewBorders);
+
     boolean isShowEnterMessages();
+
+    void setShowEnterMessage(boolean showEnterMessage);
+
     boolean isShowLeaveMessages();
+
+    void setShowLeaveMessage(boolean showLeaveMessage);
+
     MessageLocation getMessageLocation();
+
+    void setMessageLocation(MessageLocation newMessageLocation);
+
     IClaimProfile getClaimWithProfile();
+
+    void setClaimWithProfile(IClaimProfile newProfile);
 
     IClaim getClaim();
 

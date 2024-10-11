@@ -9,7 +9,6 @@ import info.preva1l.fadlc.models.claim.IClaim;
 import info.preva1l.fadlc.models.claim.IClaimProfile;
 import info.preva1l.fadlc.utils.Text;
 import lombok.Getter;
-import lombok.Setter;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.title.TitlePart;
 import org.bukkit.Bukkit;
@@ -23,15 +22,10 @@ public class BukkitUser implements OnlineUser, CommandUser {
     private final String name;
     private final UUID uniqueId;
     private Player player = null;
-    @Setter
     private int availableChunks;
-    @Setter
     private boolean viewBorders;
-    @Setter
     private boolean showEnterMessages;
-    @Setter
     private boolean showLeaveMessages;
-    @Setter
     private MessageLocation messageLocation;
     private int claimWithProfileId;
 
@@ -66,6 +60,36 @@ public class BukkitUser implements OnlineUser, CommandUser {
     }
 
     @Override
+    public void setAvailableChunks(int newAmount) {
+        this.availableChunks = newAmount;
+        UserManager.getInstance().cacheUser(this);
+    }
+
+    @Override
+    public void setViewBorders(boolean viewBorders) {
+        this.viewBorders = viewBorders;
+        UserManager.getInstance().cacheUser(this);
+    }
+
+    @Override
+    public void setShowEnterMessage(boolean showEnterMessage) {
+        this.showEnterMessages = showEnterMessage;
+        UserManager.getInstance().cacheUser(this);
+    }
+
+    @Override
+    public void setShowLeaveMessage(boolean showLeaveMessage) {
+        this.showLeaveMessages = showLeaveMessage;
+        UserManager.getInstance().cacheUser(this);
+    }
+
+    @Override
+    public void setMessageLocation(MessageLocation newMessageLocation) {
+        this.messageLocation = newMessageLocation;
+        UserManager.getInstance().cacheUser(this);
+    }
+
+    @Override
     public IClaimProfile getClaimWithProfile() {
         return getClaim().getProfiles().get(getClaimWithProfileId());
     }
@@ -81,17 +105,18 @@ public class BukkitUser implements OnlineUser, CommandUser {
     }
 
     @Override
+    public void setClaimWithProfile(IClaimProfile profile) {
+        this.claimWithProfileId = profile.getId();
+        UserManager.getInstance().cacheUser(this);
+    }
+
+    @Override
     public void sendMessage(String message, boolean prefixed) {
         switch (messageLocation) {
             case CHAT -> getAudience().sendMessage(Text.modernMessage(Lang.getInstance().getPrefix() + message));
             case HOTBAR -> getAudience().sendActionBar(Text.modernMessage(Lang.getInstance().getPrefix() + message));
             case TITLE -> getAudience().sendTitlePart(TitlePart.SUBTITLE, Text.modernMessage(Lang.getInstance().getPrefix() + message));
         }
-    }
-
-    public void setClaimWithProfile(IClaimProfile profile) {
-        this.claimWithProfileId = profile.getId();
-        UserManager.getInstance().cacheUser(this);
     }
 
     @Override

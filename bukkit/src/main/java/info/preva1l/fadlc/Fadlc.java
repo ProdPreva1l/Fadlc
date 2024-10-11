@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import info.preva1l.fadlc.api.ImplLandClaimsAPI;
 import info.preva1l.fadlc.api.LandClaimsAPI;
 import info.preva1l.fadlc.commands.ClaimCommand;
+import info.preva1l.fadlc.config.particles.Particles;
+import info.preva1l.fadlc.config.sounds.Sounds;
 import info.preva1l.fadlc.jobs.ClaimBorderJob;
 import info.preva1l.fadlc.jobs.SaveJobs;
 import info.preva1l.fadlc.listeners.ClaimListeners;
@@ -15,7 +17,6 @@ import info.preva1l.fadlc.utils.Logger;
 import info.preva1l.fadlc.utils.Metrics;
 import info.preva1l.fadlc.utils.Text;
 import info.preva1l.fadlc.utils.config.BasicConfig;
-import info.preva1l.fadlc.utils.sounds.Sounds;
 import lombok.Getter;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.william278.desertwell.util.UpdateChecker;
@@ -56,6 +57,7 @@ public final class Fadlc extends JavaPlugin {
         Logger.info("Managers initialized!");
 
         Sounds.update();
+        Particles.update();
 
         loadMenus();
 
@@ -90,7 +92,9 @@ public final class Fadlc extends JavaPlugin {
         Bukkit.getConsoleSender().sendMessage(Text.legacyMessage("&2&l------------------------------"));
         Bukkit.getConsoleSender().sendMessage(Text.legacyMessage("&a  Finally a Decent Land Claim"));
         Bukkit.getConsoleSender().sendMessage(Text.legacyMessage("&a   has successfully started!"));
-        Bukkit.getConsoleSender().sendMessage(Text.legacyMessage("&a  Licenced to: " + skibidiToilet));
+        Bukkit.getConsoleSender().sendMessage(Text.legacyMessage("&a  Licenced to: " + skibidiToilet
+                .replace("%%", "")
+                .replace("__USERNAME__", "Not Logged In").replace("__USER__", "Self Compiled Build")));
         Bukkit.getConsoleSender().sendMessage(Text.legacyMessage("&2&l------------------------------"));
 
         Bukkit.getScheduler().runTaskLater(this, this::checkForUpdates, 60L);

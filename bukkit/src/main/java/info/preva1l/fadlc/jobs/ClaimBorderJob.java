@@ -1,5 +1,6 @@
 package info.preva1l.fadlc.jobs;
 
+import info.preva1l.fadlc.config.particles.Particles;
 import info.preva1l.fadlc.managers.ClaimManager;
 import info.preva1l.fadlc.models.ChunkStatus;
 import info.preva1l.fadlc.models.IClaimChunk;
@@ -105,10 +106,10 @@ public class ClaimBorderJob extends Job {
     }
 
     private void spawnParticleAt(Player player, Location loc, IClaimProfile profile) {
-        player.spawnParticle(profile.getBorder(), loc, 1, 0, 0, 0, 0);
-        player.spawnParticle(profile.getBorder(), loc.clone().add(0, 1, 0), 1, 0, 0, 0, 0);
-        player.spawnParticle(profile.getBorder(), loc.clone().add(0, 2, 0), 1, 0, 0, 0, 0);
-        player.spawnParticle(profile.getBorder(), loc.clone().add(0, -1, 0), 1, 0, 0, 0, 0);
-        player.spawnParticle(profile.getBorder(), loc.clone().add(0, -2, 0), 1, 0, 0, 0, 0);
+        Particles.showParticle(player, profile.getBorder(), loc);
+        Particles.showParticle(player, profile.getBorder(), loc.clone().add(0, 1, 0));
+        Particles.showParticle(player, profile.getBorder(), loc.clone().add(0, 2, 0));
+        Particles.showParticle(player, profile.getBorder(), loc.clone().add(0, -1, 0));
+        Particles.showParticle(player, profile.getBorder(), loc.clone().add(0, -2, 0));
     }
 }

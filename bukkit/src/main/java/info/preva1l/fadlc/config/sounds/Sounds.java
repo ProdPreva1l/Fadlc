@@ -1,4 +1,4 @@
-package info.preva1l.fadlc.utils.sounds;
+package info.preva1l.fadlc.config.sounds;
 
 import info.preva1l.fadlc.Fadlc;
 import info.preva1l.fadlc.utils.config.BasicConfig;
@@ -14,22 +14,22 @@ import java.util.concurrent.ConcurrentHashMap;
 @UtilityClass
 public class Sounds {
     private Map<String, SoundType> sounds = new ConcurrentHashMap<>();
-    private final BasicConfig categoriesFile = new BasicConfig(Fadlc.i(), "sounds.yml");
+    private final BasicConfig soundsFile = new BasicConfig(Fadlc.i(), "sounds.yml");
 
     public void update() {
-        sounds = fillListWithCategories();
+        sounds = getSoundsFromFile();
     }
 
     public SoundType getSound(String name) {
         return sounds.get(name);
     }
 
-    public Map<String, SoundType> fillListWithCategories() {
+    public Map<String, SoundType> getSoundsFromFile() {
         Map<String, SoundType> list = new HashMap<>();
-        for (String key : categoriesFile.getConfiguration().getKeys(false)) {
-            Sound bukkit = Sound.valueOf(categoriesFile.getString(key + ".value"));
-            float volume = categoriesFile.getFloat(key + ".volume");
-            float pitch = categoriesFile.getFloat(key + ".pitch");
+        for (String key : soundsFile.getConfiguration().getKeys(false)) {
+            Sound bukkit = Sound.valueOf(soundsFile.getString(key + ".value"));
+            float volume = soundsFile.getFloat(key + ".volume");
+            float pitch = soundsFile.getFloat(key + ".pitch");
 
             list.put(key, new SoundType(key, bukkit, volume, pitch));
         }

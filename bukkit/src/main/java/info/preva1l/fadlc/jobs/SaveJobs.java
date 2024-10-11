@@ -63,7 +63,7 @@ public class SaveJobs {
         @Override
         protected void execute() {
             UserManager.getInstance().getAllUsers().forEach(f ->
-                    PersistenceManager.getInstance().save(OnlineUser.class, f));
+                    PersistenceManager.getInstance().save(OnlineUser.class, f).join());
         }
     }
 }

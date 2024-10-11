@@ -3,7 +3,6 @@ package info.preva1l.fadlc.models.claim;
 import info.preva1l.fadlc.models.claim.settings.IProfileFlag;
 import info.preva1l.fadlc.models.user.User;
 import info.preva1l.fadlc.persistence.DatabaseObject;
-import org.bukkit.Particle;
 
 import java.util.Map;
 import java.util.UUID;
@@ -19,7 +18,7 @@ public interface IClaimProfile extends DatabaseObject {
 
     Map<IProfileFlag, Boolean> getFlags();
 
-    Particle getBorder();
+    String getBorder();
 
     IProfileGroup getPlayerGroup(User user);
 }

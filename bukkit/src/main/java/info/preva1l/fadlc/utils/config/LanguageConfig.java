@@ -1,10 +1,10 @@
 package info.preva1l.fadlc.utils.config;
 
+import info.preva1l.fadlc.config.sounds.SoundType;
+import info.preva1l.fadlc.config.sounds.Sounds;
 import info.preva1l.fadlc.menus.lib.ItemBuilder;
 import info.preva1l.fadlc.utils.Logger;
 import info.preva1l.fadlc.utils.Text;
-import info.preva1l.fadlc.utils.sounds.SoundType;
-import info.preva1l.fadlc.utils.sounds.Sounds;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.configuration.ConfigurationSection;

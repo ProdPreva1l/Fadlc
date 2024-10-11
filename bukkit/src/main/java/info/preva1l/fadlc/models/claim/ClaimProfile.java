@@ -5,7 +5,6 @@ import info.preva1l.fadlc.models.claim.settings.ProfileFlag;
 import info.preva1l.fadlc.models.user.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.bukkit.Particle;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -18,7 +17,7 @@ public class ClaimProfile implements IClaimProfile {
     private final int id;
     private final Map<Integer, IProfileGroup> groups;
     private final Map<IProfileFlag, Boolean> flags;
-    private Particle border;
+    private String border;
 
     private final Map<User, IProfileGroup> groupCache = new ConcurrentHashMap<>();
 
@@ -34,7 +33,7 @@ public class ClaimProfile implements IClaimProfile {
                 4, ProfileGroup.rankFour(),
                 5, ProfileGroup.rankFive()
         );
-        return new ClaimProfile(UUID.randomUUID(), "&7%s's Claim".formatted(player), id, groups, flags, Particle.VILLAGER_HAPPY);
+        return new ClaimProfile(UUID.randomUUID(), "&7%s's Claim".formatted(player), id, groups, flags, "default");
     }
 
     /**
@@ -56,11 +55,11 @@ public class ClaimProfile implements IClaimProfile {
                 .filter(g -> g.getUsers().contains(user))
                 .sorted(Comparator.comparing(IProfileGroup::getId)).toList());
 
-        IProfileGroup group = usersGroups.isEmpty() ? null : usersGroups.get(usersGroups.size() - 1);
+        IProfileGroup group = usersGroups.isEmpty() ? null : usersGroups.getLast();
 
         if (usersGroups.size() > 1) {
             while (usersGroups.size() > 1) {
-                IProfileGroup g = usersGroups.remove(0);
+                IProfileGroup g = usersGroups.removeFirst();
                 groups.get(g.getId()).getUsers().remove(user);
             }
         }

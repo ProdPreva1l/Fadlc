@@ -8,7 +8,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class TaskManager {
     /**
      * Run a synchronous task once. Helpful when needing to run some sync code in an async loop
-     * @param plugin The current plugin typeof JavaPlugin. (Not Commons)
+     * @param plugin The current plugin
      * @param runnable The runnable, lambda supported yeh
      */
     public static void runSync(JavaPlugin plugin, Runnable runnable) {
@@ -17,7 +17,7 @@ public class TaskManager {
 
     /**
      * Run a synchronous task forever with a delay between runs.
-     * @param plugin The current plugin typeof JavaPlugin. (Not Commons)
+     * @param plugin The current plugin
      * @param runnable The runnable, lambda supported yeh
      * @param interval Time between each run
      */
@@ -26,7 +26,7 @@ public class TaskManager {
     }
     /**
      * Run a synchronous task once with a delay. Helpful when needing to run some sync code in an async loop
-     * @param plugin The current plugin typeof JavaPlugin. (Not Commons)
+     * @param plugin The current plugin
      * @param runnable The runnable, lambda supported yeh
      * @param delay Time before running.
      */
@@ -36,7 +36,7 @@ public class TaskManager {
 
     /**
      * Run an asynchronous task once. Helpful when needing to run some sync code in an async loop
-     * @param plugin The current plugin typeof JavaPlugin. (Not Commons)
+     * @param plugin The current plugin
      * @param runnable The runnable, lambda supported yeh
      */
     public static void runAsync(JavaPlugin plugin, Runnable runnable) {
@@ -44,7 +44,7 @@ public class TaskManager {
     }
     /**
      * Run an asynchronous task forever with a delay between runs.
-     * @param plugin The current plugin typeof JavaPlugin. (Not Commons)
+     * @param plugin The current plugin
      * @param runnable The runnable, lambda supported yeh
      * @param interval Time between each run
      */
@@ -53,7 +53,7 @@ public class TaskManager {
     }
     /**
      * Run an asynchronous task once with a delay. Helpful when needing to run some sync code in an async loop
-     * @param plugin The current plugin typeof JavaPlugin. (Not Commons)
+     * @param plugin The current plugin
      * @param runnable The runnable, lambda supported yeh
      * @param delay Time before running.
      */

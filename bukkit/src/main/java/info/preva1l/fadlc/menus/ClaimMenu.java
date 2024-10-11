@@ -1,6 +1,7 @@
 package info.preva1l.fadlc.menus;
 
 import info.preva1l.fadlc.Fadlc;
+import info.preva1l.fadlc.config.sounds.Sounds;
 import info.preva1l.fadlc.managers.ClaimManager;
 import info.preva1l.fadlc.managers.LayoutManager;
 import info.preva1l.fadlc.managers.UserManager;
@@ -9,11 +10,10 @@ import info.preva1l.fadlc.menus.lib.ItemBuilder;
 import info.preva1l.fadlc.models.ChunkStatus;
 import info.preva1l.fadlc.models.IClaimChunk;
 import info.preva1l.fadlc.models.claim.IClaim;
+import info.preva1l.fadlc.models.claim.IClaimProfile;
 import info.preva1l.fadlc.models.user.OnlineUser;
 import info.preva1l.fadlc.utils.Text;
 import info.preva1l.fadlc.utils.Time;
-import info.preva1l.fadlc.utils.sounds.Sounds;
-import net.kyori.adventure.audience.Audience;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
@@ -29,7 +29,6 @@ import java.util.Optional;
 
 public class ClaimMenu extends FastInv {
     private final Player player;
-    private final Audience audience;
     private final OnlineUser user;
 
     private final BukkitTask updateTask;
@@ -37,7 +36,6 @@ public class ClaimMenu extends FastInv {
     public ClaimMenu(Player player) {
         super(54, LayoutManager.MenuType.CLAIM);
         this.player = player;
-        this.audience = Fadlc.i().getAudiences().player(player);
         this.user = UserManager.getInstance().getUser(player.getUniqueId()).orElseThrow();
 
         placeFillerItems();
@@ -59,8 +57,31 @@ public class ClaimMenu extends FastInv {
                 .replaceAnywhere("%chunks%", user.getAvailableChunks() + "").getBase(), e -> {
             Sounds.playSound(player, getLang().getSound("buy-chunks.sound"));
         });
-        setItem(changeProfileSlot, getLang().getItemStack("switch-profile").getBase(), e -> {
+
+        IClaimProfile previousProfile = user.getClaim().getProfiles().get(user.getClaimWithProfile().getId() - 1);
+        String previous = previousProfile == null
+                ? "None"
+                : previousProfile.getName();
+        String current = user.getClaimWithProfile().getName();
+        IClaimProfile nextProfile = user.getClaim().getProfiles().get(user.getClaimWithProfile().getId() + 1);
+        String next = nextProfile == null
+                ? "None"
+                : nextProfile.getName();
+        setItem(changeProfileSlot, getLang().getItemStack("switch-profile")
+                .replaceAnywhere("%previous%", Text.legacyMessage(previous))
+                .replaceAnywhere("%current%", Text.legacyMessage(current))
+                .replaceAnywhere("%next%", Text.legacyMessage(next)).getBase(), e -> {
             Sounds.playSound(player, getLang().getSound("switch-profile.sound"));
+
+            if (e.getType().isLeftClick() && previousProfile != null) {
+                user.setClaimWithProfile(previousProfile);
+            }
+
+            if (e.getType().isRightClick() && nextProfile != null) {
+                user.setClaimWithProfile(nextProfile);
+            }
+
+            placeNavigationButtons();
         });
         setItem(manageProfilesSlot, getLang().getItemStack("manage-profiles").getBase(), e -> {
             Sounds.playSound(player, getLang().getSound("manage-profiles.sound"));
@@ -86,19 +107,19 @@ public class ClaimMenu extends FastInv {
                             return;
                         }
 
-                        audience.sendActionBar(Text.modernMessage("&cChunk is already claimed!"));
+                        user.sendMessage("&cChunk is already claimed!");
                         Sounds.playSound(player, getLang().getSound("chunk-sounds.already-claimed"));
                     }
                     case WORLD_DISABLED -> {
-                        audience.sendActionBar(Text.modernMessage("&cClaiming is disabled in this world!"));
+                        user.sendMessage("&cClaiming is disabled in this world!");
                         Sounds.playSound(player, getLang().getSound("chunk-sounds.cant-claim.other"));
                     }
                     case BLOCKED_WORLD_GUARD -> {
-                        audience.sendActionBar(Text.modernMessage("&cThis chunk is protected by world guard!"));
+                        user.sendMessage("&cThis chunk is protected by world guard!");
                         Sounds.playSound(player, getLang().getSound("chunk-sounds.cant-claim.other"));
                     }
                     case BLOCKED_ZONE_BORDER -> {
-                        audience.sendActionBar(Text.modernMessage("&cYou cannot claim within 3 chunks of the zone border!"));
+                        user.sendMessage("&cYou cannot claim within 3 chunks of the zone border!");
                         Sounds.playSound(player, getLang().getSound("chunk-sounds.cant-claim.other"));
                     }
                 }

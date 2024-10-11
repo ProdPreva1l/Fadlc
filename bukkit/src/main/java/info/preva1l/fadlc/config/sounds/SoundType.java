@@ -1,4 +1,4 @@
-package info.preva1l.fadlc.utils.sounds;
+package info.preva1l.fadlc.config.sounds;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
