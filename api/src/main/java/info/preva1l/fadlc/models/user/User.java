@@ -7,4 +7,6 @@ import java.util.UUID;
 public interface User extends DatabaseObject {
     String getName();
     UUID getUniqueId();
+
+    OnlineUser getOnlineUser();
 }

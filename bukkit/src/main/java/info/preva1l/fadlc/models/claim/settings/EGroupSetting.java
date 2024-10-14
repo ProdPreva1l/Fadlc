@@ -7,7 +7,7 @@ import java.util.List;
 
 @Getter
 @AllArgsConstructor
-public enum GroupSetting implements IGroupSetting {
+public enum EGroupSetting {
     PLACE_BLOCKS(
             "Allow Block Placing",
             List.of("Whether or not to allow", "player to place blocks.")

@@ -6,7 +6,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import info.preva1l.fadlc.Fadlc;
 import info.preva1l.fadlc.models.claim.IProfileGroup;
 import info.preva1l.fadlc.models.claim.ProfileGroup;
-import info.preva1l.fadlc.models.claim.settings.GroupSetting;
+import info.preva1l.fadlc.models.claim.settings.EGroupSetting;
 import info.preva1l.fadlc.models.user.OfflineUser;
 import info.preva1l.fadlc.models.user.User;
 import info.preva1l.fadlc.persistence.Dao;
@@ -26,7 +26,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class SQLiteGroupDao implements Dao<IProfileGroup> {
     private final HikariDataSource dataSource;
-    private static final Type settingsType = new TypeToken<Map<GroupSetting, Boolean>>(){}.getType();
+    private static final Type settingsType = new TypeToken<Map<EGroupSetting, Boolean>>(){}.getType();
     private static final Type usersType = new TypeToken<List<OfflineUser>>(){}.getType();
 
     /**
@@ -50,7 +50,7 @@ public class SQLiteGroupDao implements Dao<IProfileGroup> {
                     final int id = resultSet.getInt("id");
                     final String name = resultSet.getString("name");
                     final List<User> users = gson.fromJson(resultSet.getString("users"), usersType);
-                    final Map<GroupSetting, Boolean> flags = gson.fromJson(resultSet.getString("settings"), settingsType);
+                    final Map<EGroupSetting, Boolean> flags = gson.fromJson(resultSet.getString("settings"), settingsType);
                     return Optional.of(new ProfileGroup(uuid, id, name, users, flags));
                 }
             }

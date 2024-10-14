@@ -22,7 +22,7 @@ public class Particles {
         particles = getParticlesFromFile();
     }
 
-    public ParticleType getSound(String name) {
+    public ParticleType getParticle(String name) {
         ParticleType type = particles.get(name);
         if (type == null) {
             type = particles.values().stream().findFirst().orElse(new ParticleType("default",
@@ -53,8 +53,12 @@ public class Particles {
     }
 
     public void showParticle(Player player, String border, Location location) {
-        ParticleType particleType = getSound(border);
-        player.spawnParticle(particleType.getBukkit(), location, particleType.getAmount(), 0, 0, 0,
-                new Particle.DustOptions(particleType.getColor(), particleType.getSize()));
+        ParticleType particleType = getParticle(border);
+        if (particleType.getBukkit() == Particle.REDSTONE) {
+            Particle.DustOptions options = new Particle.DustOptions(particleType.getColor(), particleType.getSize());
+            player.spawnParticle(particleType.getBukkit(), location, particleType.getAmount(), options);
+            return;
+        }
+        player.spawnParticle(particleType.getBukkit(), location, particleType.getAmount(), 0, 0, 0);
     }
 }

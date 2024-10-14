@@ -2,8 +2,10 @@ package info.preva1l.fadlc.config;
 
 import de.exlll.configlib.*;
 import info.preva1l.fadlc.Fadlc;
+import info.preva1l.fadlc.config.misc.PerformanceMode;
 import info.preva1l.fadlc.models.claim.settings.GroupSetting;
 import info.preva1l.fadlc.persistence.DatabaseType;
+import info.preva1l.fadlc.registry.GroupSettingsRegistry;
 import info.preva1l.fadlc.utils.Logger;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -35,6 +37,13 @@ public class Config {
     private int maxProfiles = 10;
 
     private Formatting formatting = new Formatting();
+
+    @Comment({
+            "What should Fadlc optimize for?",
+            "TICK_TIME = More caching to prevent cpu heavy tasks",
+            "MEMORY = Less caching to prevent excess memory usage"
+    })
+    private PerformanceMode performanceMode = PerformanceMode.TICK_TIME;
 
     @Getter
     @Configuration
@@ -71,9 +80,9 @@ public class Config {
         public static class First {
             private String name = "Default";
             private Map<GroupSetting, Boolean> settings = Map.of(
-                    GroupSetting.BREAK_BLOCKS, false,
-                    GroupSetting.PLACE_BLOCKS, false,
-                    GroupSetting.ENTER, true
+                    GroupSettingsRegistry.BREAK_BLOCKS, false,
+                    GroupSettingsRegistry.PLACE_BLOCKS, false,
+                    GroupSettingsRegistry.ENTER, true
             );
         }
 
@@ -85,9 +94,9 @@ public class Config {
         public static class Second {
             private String name = "Group 2";
             private Map<GroupSetting, Boolean> settings = Map.of(
-                    GroupSetting.BREAK_BLOCKS, false,
-                    GroupSetting.PLACE_BLOCKS, false,
-                    GroupSetting.ENTER, true
+                    GroupSettingsRegistry.BREAK_BLOCKS, false,
+                    GroupSettingsRegistry.PLACE_BLOCKS, false,
+                    GroupSettingsRegistry.ENTER, true
             );
         }
 
@@ -99,9 +108,9 @@ public class Config {
         public static class Third {
             private String name = "Group 3";
             private Map<GroupSetting, Boolean> settings = Map.of(
-                    GroupSetting.BREAK_BLOCKS, true,
-                    GroupSetting.PLACE_BLOCKS, true,
-                    GroupSetting.ENTER, true
+                    GroupSettingsRegistry.BREAK_BLOCKS, true,
+                    GroupSettingsRegistry.PLACE_BLOCKS, true,
+                    GroupSettingsRegistry.ENTER, true
             );
         }
 
@@ -113,9 +122,9 @@ public class Config {
         public static class Fourth {
             private String name = "Group 4";
             private Map<GroupSetting, Boolean> settings = Map.of(
-                    GroupSetting.BREAK_BLOCKS, true,
-                    GroupSetting.PLACE_BLOCKS, true,
-                    GroupSetting.ENTER, true
+                    GroupSettingsRegistry.BREAK_BLOCKS, true,
+                    GroupSettingsRegistry.PLACE_BLOCKS, true,
+                    GroupSettingsRegistry.ENTER, true
             );
         }
 
@@ -127,9 +136,9 @@ public class Config {
         public static class Fifth {
             private String name = "Group 5";
             private Map<GroupSetting, Boolean> settings = Map.of(
-                    GroupSetting.BREAK_BLOCKS, true,
-                    GroupSetting.PLACE_BLOCKS, true,
-                    GroupSetting.ENTER, true
+                    GroupSettingsRegistry.BREAK_BLOCKS, true,
+                    GroupSettingsRegistry.PLACE_BLOCKS, true,
+                    GroupSettingsRegistry.ENTER, true
             );
         }
 

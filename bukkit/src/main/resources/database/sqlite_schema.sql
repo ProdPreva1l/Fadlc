@@ -20,11 +20,7 @@ CREATE TABLE IF NOT EXISTS claims
 
 CREATE TABLE IF NOT EXISTS chunks
 (
-    uniqueId    TEXT    NOT NULL PRIMARY KEY,
-    world       TEXT    NOT NULL,
-    x           INTEGER NOT NULL,
-    z           INTEGER NOT NULL,
-    server      TEXT    NOT NULL,
+    location    TEXT    NOT NULL PRIMARY KEY,
     timeClaimed INTEGER NOT NULL,
     profile     INTEGER NOT NULL
 );
@@ -33,6 +29,7 @@ CREATE TABLE IF NOT EXISTS profiles
 (
     uuid   TEXT    NOT NULL PRIMARY KEY,
     id     INTEGER NOT NULL,
+    parent TEXT    NOT NULL,
     name   TEXT    NOT NULL,
     groups TEXT    NOT NULL,
     flags  TEXT    NOT NULL,

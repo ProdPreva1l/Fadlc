@@ -7,14 +7,8 @@ import java.util.List;
 
 @Getter
 @AllArgsConstructor
-public enum ProfileFlag implements IProfileFlag {
-    EXPLOSION_DAMAGE(
-            "Allow Explosion Damage",
-            List.of("Whether or not to allow", "TNT, End Crystals & TNT Minecarts", "to break blocks."),
-            false
-    ),
-    ;
-
+public class ProfileFlag {
+    private String id;
     private final String name;
     private final List<String> description;
     private final boolean enabledByDefault;

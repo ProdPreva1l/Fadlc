@@ -3,10 +3,8 @@ package info.preva1l.fadlc.models;
 import info.preva1l.fadlc.persistence.DatabaseObject;
 import org.bukkit.World;
 
-import java.util.UUID;
-
 public interface IClaimChunk extends DatabaseObject {
-    UUID getUniqueId();
+    ChunkLoc getLoc();
 
     int getChunkX();
 

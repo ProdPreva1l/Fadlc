@@ -1,6 +1,6 @@
 package info.preva1l.fadlc.models.claim;
 
-import info.preva1l.fadlc.models.claim.settings.IGroupSetting;
+import info.preva1l.fadlc.models.claim.settings.GroupSetting;
 import info.preva1l.fadlc.models.user.User;
 import info.preva1l.fadlc.persistence.DatabaseObject;
 
@@ -17,5 +17,5 @@ public interface IProfileGroup extends DatabaseObject {
 
     List<User> getUsers();
 
-    Map<? extends IGroupSetting, Boolean> getSettings();
+    Map<GroupSetting, Boolean> getSettings();
 }

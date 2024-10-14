@@ -1,6 +1,9 @@
 package info.preva1l.fadlc.managers;
 
+import info.preva1l.fadlc.config.Config;
 import info.preva1l.fadlc.config.ServerSettings;
+import info.preva1l.fadlc.config.misc.PerformanceMode;
+import info.preva1l.fadlc.models.ChunkLoc;
 import info.preva1l.fadlc.models.ClaimChunk;
 import info.preva1l.fadlc.models.IClaimChunk;
 import info.preva1l.fadlc.models.ILoc;
@@ -19,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class ClaimManager implements IClaimManager {
     private static ClaimManager instance;
     private final Map<UUID, IClaim> claimCache = new ConcurrentHashMap<>();
-    private final Map<UUID, IClaimChunk> chunkCache = new ConcurrentHashMap<>();
+    private final Map<ChunkLoc, IClaimChunk> chunkCache = new ConcurrentHashMap<>();
 
     public static ClaimManager getInstance() {
         if (instance == null) {
@@ -34,25 +37,29 @@ public final class ClaimManager implements IClaimManager {
 
     @Override
     public Optional<IClaim> getClaimAt(IClaimChunk claimChunk) {
-        return claimCache.values().stream().filter(claim -> claim.getClaimedChunks().containsKey(claimChunk.getUniqueId())).findFirst();
+        return claimCache.values().stream().filter(claim -> claim.getClaimedChunks().containsKey(claimChunk.getLoc())).findFirst();
     }
 
     @Override
     public Optional<IClaim> getClaimAt(ILoc loc) {
-        return claimCache.values().stream().filter(claim -> claim.getClaimedChunks().containsKey(loc.getChunk().getUniqueId())).findFirst();
+        return claimCache.values().stream().filter(claim -> claim.getClaimedChunks().containsKey(loc.getChunk().getLoc())).findFirst();
     }
 
     @Override
     public IClaim getClaimByOwner(OnlineUser user) {
         IClaim claim = claimCache.get(user.getUniqueId());
         if (claim == null) {
-            String name = user.getName();
             Map<Integer, IClaimProfile> baseProfiles = new HashMap<>();
             baseProfiles.put(1, ClaimProfile.baseProfile(user, 1));
+            baseProfiles.put(2, ClaimProfile.baseProfile(user, 2));
             claim = new Claim(user, new HashMap<>(), baseProfiles);
             updateClaim(claim);
         }
         return claim;
+    }
+
+    public IClaim getByUUID(UUID uuid) {
+        return claimCache.get(uuid);
     }
 
     @Override
@@ -66,12 +73,12 @@ public final class ClaimManager implements IClaimManager {
 
     public void cacheChunk(IClaimChunk claimChunk) {
         if (!claimChunk.getServer().equals(ServerSettings.getInstance().getName())) return;
-        chunkCache.put(claimChunk.getUniqueId(), claimChunk);
+        chunkCache.put(claimChunk.getLoc(), claimChunk);
     }
 
     @Override
-    public IClaimChunk getChunk(UUID uniqueId) {
-        return chunkCache.get(uniqueId);
+    public IClaimChunk getChunk(ChunkLoc loc) {
+        return chunkCache.get(loc);
     }
 
     @Override
@@ -83,14 +90,14 @@ public final class ClaimManager implements IClaimManager {
             return optChunk.get();
         }
 
-        UUID uuid = UUID.randomUUID();
-        IClaimChunk newChunk = new ClaimChunk(loc.getX() >> 4, loc.getZ() >> 4, loc.getWorld(), "", uuid, -1, -1);
-        cacheChunk(newChunk);
+        IClaimChunk newChunk = new ClaimChunk(new ChunkLoc(loc.getX() >> 4, loc.getZ() >> 4, loc.getWorld(), ServerSettings.getInstance().getName()), -1, -1);
+        if (Config.getInstance().getPerformanceMode() != PerformanceMode.MEMORY) {
+            cacheChunk(newChunk);
+        }
         return newChunk;
     }
 
-
-    public IClaimChunk getChunkAtChunk(int x, int z, String world) {
+    public IClaimChunk getChunkAt(int x, int z, String world) {
         Optional<IClaimChunk> optChunk = chunkCache.values().stream().filter(chunk -> chunk.getChunkX() == x
                 && chunk.getChunkZ() == z && world.equals(chunk.getWorldName())).findFirst();
 
@@ -98,9 +105,10 @@ public final class ClaimManager implements IClaimManager {
             return optChunk.get();
         }
 
-        UUID uuid = UUID.randomUUID();
-        IClaimChunk newChunk = new ClaimChunk(x, z, world, ServerSettings.getInstance().getName(), uuid, -1, -1);
-        cacheChunk(newChunk);
+        IClaimChunk newChunk = new ClaimChunk(new ChunkLoc(x, z, world, ServerSettings.getInstance().getName()), -1, -1);
+        if (Config.getInstance().getPerformanceMode() != PerformanceMode.MEMORY) {
+            cacheChunk(newChunk);
+        }
         return newChunk;
     }
 }

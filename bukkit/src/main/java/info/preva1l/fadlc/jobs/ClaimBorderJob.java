@@ -36,8 +36,7 @@ public class ClaimBorderJob extends Job {
             for (int chunkX = playerChunkX - chunkRadius; chunkX <= playerChunkX + chunkRadius; chunkX++) {
                 for (int chunkZ = playerChunkZ - chunkRadius; chunkZ <= playerChunkZ + chunkRadius; chunkZ++) {
                     Chunk chunk = player.getWorld().getChunkAt(chunkX, chunkZ);
-                    IClaimChunk claimChunk = ClaimManager.getInstance()
-                            .getChunkAtChunk(chunk.getX(), chunk.getZ(), chunk.getWorld().getName());
+                    IClaimChunk claimChunk = ClaimManager.getInstance().getChunkAt(chunk.getX(), chunk.getZ(), chunk.getWorld().getName());
 
                     if (claimChunk.getStatus() != ChunkStatus.ALREADY_CLAIMED) continue;
 
@@ -52,7 +51,7 @@ public class ClaimBorderJob extends Job {
         int startZ = chunk.getZ() << 4;
         int endX = startX + 16;
         int endZ = startZ + 16;
-        IClaimChunk claimChunk = ClaimManager.getInstance().getChunkAtChunk(chunk.getX(), chunk.getZ(), chunk.getWorld().getName());
+        IClaimChunk claimChunk = ClaimManager.getInstance().getChunkAt(chunk.getX(), chunk.getZ(), chunk.getWorld().getName());
         Optional<IClaim> claim = ClaimManager.getInstance().getClaimAt(claimChunk);
 
         if (claim.isEmpty()) {
@@ -87,8 +86,8 @@ public class ClaimBorderJob extends Job {
     }
 
     private boolean isConnectingChunk(Chunk chnk1, Chunk chnk2) {
-        IClaimChunk chunk1 = ClaimManager.getInstance().getChunkAtChunk(chnk1.getX(), chnk1.getZ(), chnk1.getWorld().getName());
-        IClaimChunk chunk2 = ClaimManager.getInstance().getChunkAtChunk(chnk2.getX(), chnk2.getZ(), chnk2.getWorld().getName());
+        IClaimChunk chunk1 = ClaimManager.getInstance().getChunkAt(chnk1.getX(), chnk1.getZ(), chnk1.getWorld().getName());
+        IClaimChunk chunk2 = ClaimManager.getInstance().getChunkAt(chnk2.getX(), chnk2.getZ(), chnk2.getWorld().getName());
 
         Optional<IClaim> claim1 = ClaimManager.getInstance().getClaimAt(chunk1);
         Optional<IClaim> claim2 = ClaimManager.getInstance().getClaimAt(chunk2);

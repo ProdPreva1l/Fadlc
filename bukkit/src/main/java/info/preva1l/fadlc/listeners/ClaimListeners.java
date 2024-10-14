@@ -1,5 +1,6 @@
 package info.preva1l.fadlc.listeners;
 
+import info.preva1l.fadlc.api.FadlcAPI;
 import info.preva1l.fadlc.api.events.ClaimEnterEvent;
 import info.preva1l.fadlc.api.events.ClaimLeaveEvent;
 import info.preva1l.fadlc.config.Lang;
@@ -9,10 +10,9 @@ import info.preva1l.fadlc.models.IClaimChunk;
 import info.preva1l.fadlc.models.ILoc;
 import info.preva1l.fadlc.models.Loc;
 import info.preva1l.fadlc.models.claim.IClaim;
-import info.preva1l.fadlc.models.claim.IProfileGroup;
 import info.preva1l.fadlc.models.claim.settings.GroupSetting;
-import info.preva1l.fadlc.models.claim.settings.IGroupSetting;
 import info.preva1l.fadlc.models.user.OnlineUser;
+import info.preva1l.fadlc.registry.GroupSettingsRegistry;
 import lombok.AllArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -23,59 +23,38 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 
-import java.util.Optional;
-
 @AllArgsConstructor
 public class ClaimListeners implements Listener {
     private final ClaimManager claimManager;
 
-    /**
-     * Check if the player can perform an action at the provided location.
-     *
-     * @param user the player to check.
-     * @param location the location of the action.
-     * @return true if the action is allowed false if not
-     */
+
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    private boolean isActionAllowed(OnlineUser user, ILoc location, IGroupSetting setting) {
-        Optional<IClaim> claimAtLocation = claimManager.getClaimAt(location);
-        if (claimAtLocation.isEmpty()) {
-            return true;
-        }
-
-        if (claimAtLocation.get().getOwner().equals(user)) {
-            return true;
-        }
-
-        IProfileGroup group = claimAtLocation.get().getProfile(location.getChunk()).orElseThrow().getPlayerGroup(user);
-
-        if (group == null) {
-            return false;
-        }
-
-        return group.getSettings().get(setting);
+    private boolean isActionAllowed(OnlineUser user, ILoc location, GroupSetting setting) {
+        return FadlcAPI.getInstance().isActionAllowed(user, location, setting);
     }
 
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
         OnlineUser user = UserManager.getInstance().getUser(event.getPlayer().getUniqueId()).orElseThrow();
-        if (isActionAllowed(user, Loc.fromBukkit(event.getBlock().getLocation()), GroupSetting.PLACE_BLOCKS)) {
+        if (isActionAllowed(user, Loc.fromBukkit(event.getBlock().getLocation()), GroupSettingsRegistry.PLACE_BLOCKS)) {
             return;
         }
         event.setCancelled(true);
 
-        Lang.sendMessage(event.getPlayer(), Lang.getInstance().getPrevention().getPlaceBlocks());
+        Lang.sendMessage(event.getPlayer(), Lang.getInstance().getPrevention().getPlaceBlocks()
+                .replace("%player%", user.getName()));
     }
 
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
         OnlineUser user = UserManager.getInstance().getUser(event.getPlayer().getUniqueId()).orElseThrow();
-        if (isActionAllowed(user, Loc.fromBukkit(event.getBlock().getLocation()), GroupSetting.BREAK_BLOCKS)) {
+        if (isActionAllowed(user, Loc.fromBukkit(event.getBlock().getLocation()), GroupSettingsRegistry.BREAK_BLOCKS)) {
             return;
         }
         event.setCancelled(true);
 
-        Lang.sendMessage(event.getPlayer(), Lang.getInstance().getPrevention().getBreakBlocks());
+        Lang.sendMessage(event.getPlayer(), Lang.getInstance().getPrevention().getBreakBlocks()
+                .replace("%player%", user.getName()));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -84,8 +63,8 @@ public class ClaimListeners implements Listener {
         Location to = e.getTo();
         if (to == null) return;
         if (to.getChunk().equals(from.getChunk())) return;
-        IClaimChunk fromChunk = claimManager.getChunkAtChunk(from.getChunk().getX(), from.getChunk().getZ(), from.getWorld().getName());
-        IClaimChunk toChunk = claimManager.getChunkAtChunk(to.getChunk().getX(), to.getChunk().getZ(), to.getWorld().getName());
+        IClaimChunk fromChunk = claimManager.getChunkAt(from.getChunk().getX(), from.getChunk().getZ(), from.getWorld().getName());
+        IClaimChunk toChunk = claimManager.getChunkAt(to.getChunk().getX(), to.getChunk().getZ(), to.getWorld().getName());
         IClaim fromClaim = claimManager.getClaimAt(fromChunk).orElse(null);
         IClaim toClaim = claimManager.getClaimAt(toChunk).orElse(null);
         OnlineUser user = UserManager.getInstance().getUser(e.getPlayer().getUniqueId()).orElseThrow();
@@ -103,7 +82,7 @@ public class ClaimListeners implements Listener {
         }
 
         if (toClaim != null) {
-            if (!isActionAllowed(user, Loc.fromBukkit(e.getTo()), GroupSetting.ENTER)) {
+            if (!isActionAllowed(user, Loc.fromBukkit(e.getTo()), GroupSettingsRegistry.ENTER)) {
                 e.setCancelled(true);
                 return;
             }

@@ -34,7 +34,7 @@ public class Adapter implements IAdapter {
 
     @Override
     public IClaimChunk chunk(Chunk chunk) {
-        return ClaimManager.getInstance().getChunkAtChunk(chunk.getX(), chunk.getZ(), chunk.getWorld().getName());
+        return ClaimManager.getInstance().getChunkAt(chunk.getX(), chunk.getZ(), chunk.getWorld().getName());
     }
 
     @Override

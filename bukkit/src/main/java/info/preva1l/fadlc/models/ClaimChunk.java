@@ -8,12 +8,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 
 import java.util.Optional;
-import java.util.UUID;
 
 @Getter
 @Setter
 public class ClaimChunk implements IClaimChunk {
-    private final UUID uniqueId;
+    private final ChunkLoc loc;
     private final int chunkX;
     private final int chunkZ;
     private final String worldName;
@@ -21,12 +20,12 @@ public class ClaimChunk implements IClaimChunk {
     private long claimedSince; // -1 if not claimed
     private int profileId; // -1 if not claimed
 
-    public ClaimChunk(int chunkX, int chunkZ, String world, String server, UUID uniqueId, long claimedSince, int profileId) {
-        this.chunkX = chunkX;
-        this.chunkZ = chunkZ;
-        this.worldName = world;
-        this.server = server;
-        this.uniqueId = uniqueId;
+    public ClaimChunk(ChunkLoc chunkLoc, long claimedSince, int profileId) {
+        this.chunkX = chunkLoc.getX();
+        this.chunkZ = chunkLoc.getZ();
+        this.worldName = chunkLoc.getWorld();
+        this.server = chunkLoc.getServer();
+        this.loc = chunkLoc;
         this.claimedSince = claimedSince;
         this.profileId = profileId;
     }

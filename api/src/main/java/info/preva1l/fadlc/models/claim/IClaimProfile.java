@@ -1,6 +1,6 @@
 package info.preva1l.fadlc.models.claim;
 
-import info.preva1l.fadlc.models.claim.settings.IProfileFlag;
+import info.preva1l.fadlc.models.claim.settings.ProfileFlag;
 import info.preva1l.fadlc.models.user.User;
 import info.preva1l.fadlc.persistence.DatabaseObject;
 import org.bukkit.Material;
@@ -25,7 +25,7 @@ public interface IClaimProfile extends DatabaseObject {
 
     Map<Integer, IProfileGroup> getGroups();
 
-    Map<IProfileFlag, Boolean> getFlags();
+    Map<ProfileFlag, Boolean> getFlags();
 
     String getBorder();
 

@@ -8,11 +8,11 @@ import info.preva1l.fadlc.managers.PersistenceManager;
 import info.preva1l.fadlc.models.claim.ClaimProfile;
 import info.preva1l.fadlc.models.claim.IClaimProfile;
 import info.preva1l.fadlc.models.claim.IProfileGroup;
-import info.preva1l.fadlc.models.claim.settings.IProfileFlag;
-import info.preva1l.fadlc.models.claim.settings.ProfileFlag;
+import info.preva1l.fadlc.models.claim.settings.EProfileFlag;
 import info.preva1l.fadlc.persistence.Dao;
 import info.preva1l.fadlc.utils.Logger;
 import lombok.AllArgsConstructor;
+import org.bukkit.Material;
 
 import java.lang.reflect.Type;
 import java.sql.Connection;
@@ -25,7 +25,7 @@ import java.util.*;
 public class SQLiteProfileDao implements Dao<IClaimProfile> {
     private final HikariDataSource dataSource;
     private static final Type stringListType = new TypeToken<List<String>>(){}.getType();
-    private static final Type flagsType = new TypeToken<Map<ProfileFlag, Boolean>>(){}.getType();
+    private static final Type flagsType = new TypeToken<Map<EProfileFlag, Boolean>>(){}.getType();
 
     /**
      * Get an object from the database by its id.
@@ -38,19 +38,20 @@ public class SQLiteProfileDao implements Dao<IClaimProfile> {
         Gson gson = Fadlc.i().getGson();
         try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement("""
-                        SELECT  `id`, `name`, `groups`, `flags`, `border`
+                        SELECT  `id`, `parent`, `name`, `groups`, `flags`, `border`
                         FROM `profiles`
                         WHERE `uuid`=?;""")) {
                 statement.setString(1, uniqueId.toString());
                 final ResultSet resultSet = statement.executeQuery();
                 if (resultSet.next()) {
                     final UUID uuid = uniqueId;
+                    final UUID parent = UUID.fromString(resultSet.getString("parent"));
                     final String name = resultSet.getString("name");
                     final int id = resultSet.getInt("id");
                     final Map<Integer, IProfileGroup> groups = groupDeserialize(gson.fromJson(resultSet.getString("groups"), stringListType));
-                    final Map<IProfileFlag, Boolean> flags = gson.fromJson(resultSet.getString("flags"), flagsType);
+                    final Map<EProfileFlag, Boolean> flags = gson.fromJson(resultSet.getString("flags"), flagsType);
                     final String border = resultSet.getString("border");
-                    return Optional.of(new ClaimProfile(uuid, name, id, groups, flags, border));
+                    return Optional.of(new ClaimProfile(parent, uuid, name, id, Material.BLUE_WOOL, groups, flags, border));
                 }
             }
         } catch (SQLException e) {
@@ -79,8 +80,8 @@ public class SQLiteProfileDao implements Dao<IClaimProfile> {
         try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement("""
                         INSERT INTO `profiles`
-                        (`uuid`, `id`, `name`, `groups`, `flags`, `border`)
-                        VALUES (?,?,?,?,?,?)
+                        (`uuid`, `id`, `name`, `groups`, `flags`, `border`, `parent`)
+                        VALUES (?,?,?,?,?,?,?)
                         ON CONFLICT(`uuid`) DO UPDATE SET
                             `id` = excluded.`id`,
                             `name` = excluded.`name`,
@@ -96,6 +97,7 @@ public class SQLiteProfileDao implements Dao<IClaimProfile> {
                 statement.setString(4, groups);
                 statement.setString(5, flags);
                 statement.setString(6, profile.getBorder());
+                statement.setString(7, profile.getParent().getOwner().getUniqueId().toString());
                 statement.execute();
             } catch (Exception e) {
                 Logger.severe("Failed to save!", e);

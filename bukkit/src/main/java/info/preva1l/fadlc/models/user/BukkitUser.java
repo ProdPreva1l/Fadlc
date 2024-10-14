@@ -96,7 +96,7 @@ public class BukkitUser implements OnlineUser, CommandUser {
 
     @Override
     public IClaim getClaim() {
-        return ClaimManager.getInstance().getClaimByOwner(uniqueId);
+        return ClaimManager.getInstance().getClaimByOwner(this);
     }
 
     @Override
@@ -129,5 +129,10 @@ public class BukkitUser implements OnlineUser, CommandUser {
         if (!(o instanceof OfflineUser || o instanceof BukkitUser)) return false;
         User other = (User) o;
         return uniqueId.equals(other.getUniqueId());
+    }
+
+    @Override
+    public OnlineUser getOnlineUser() {
+        return this;
     }
 }

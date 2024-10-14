@@ -1,8 +1,8 @@
 package info.preva1l.fadlc;
 
 import com.google.gson.Gson;
-import info.preva1l.fadlc.api.ImplLandClaimsAPI;
-import info.preva1l.fadlc.api.LandClaimsAPI;
+import info.preva1l.fadlc.api.FadlcAPI;
+import info.preva1l.fadlc.api.ImplFadlcAPI;
 import info.preva1l.fadlc.commands.ClaimCommand;
 import info.preva1l.fadlc.config.particles.Particles;
 import info.preva1l.fadlc.config.sounds.Sounds;
@@ -13,6 +13,8 @@ import info.preva1l.fadlc.listeners.PlayerListeners;
 import info.preva1l.fadlc.managers.*;
 import info.preva1l.fadlc.models.IClaimChunk;
 import info.preva1l.fadlc.models.claim.IClaim;
+import info.preva1l.fadlc.models.claim.settings.ProfileFlag;
+import info.preva1l.fadlc.registry.ProfileFlagsRegistry;
 import info.preva1l.fadlc.utils.Logger;
 import info.preva1l.fadlc.utils.Metrics;
 import info.preva1l.fadlc.utils.Text;
@@ -34,7 +36,7 @@ public final class Fadlc extends JavaPlugin {
     private static final int METRICS_ID = 23412;
     private final Version pluginVersion = Version.fromString(getDescription().getVersion());
 
-    @Getter private static Fadlc instance;
+    private static Fadlc instance;
     @Getter private BukkitAudiences audiences;
     @Getter private Gson gson;
     @Getter private Random random;
@@ -62,6 +64,8 @@ public final class Fadlc extends JavaPlugin {
         Sounds.update();
         Particles.update();
 
+        loadRegistries();
+
         loadMenus();
 
         populateCaches();
@@ -87,7 +91,7 @@ public final class Fadlc extends JavaPlugin {
         Logger.info("Jobs Started!");
 
         Logger.info("Loading API...");
-        LandClaimsAPI.setInstance(new ImplLandClaimsAPI());
+        FadlcAPI.setInstance(new ImplFadlcAPI());
         Logger.info("API Loaded!");
 
         setupMetrics();
@@ -115,6 +119,23 @@ public final class Fadlc extends JavaPlugin {
         if (metrics != null) {
             metrics.shutdown();
         }
+    }
+
+    private void loadRegistries() {
+        ProfileFlagsRegistry.register( new ProfileFlag("exposion_damage",
+                "Allow Explosion Damage",
+                List.of("Whether or not to allow", "TNT, End Crystals & TNT Minecarts", "to break blocks."),
+                false));
+
+        ProfileFlagsRegistry.register(new ProfileFlag("entity_griefing",
+                "Allow Entity Griefing",
+                List.of("Whether or not to allow", "creepers, endermen &", "to break blocks."),
+                false));
+
+        ProfileFlagsRegistry.register(new ProfileFlag("pvp",
+                "PvP",
+                List.of(""),
+                false));
     }
 
     private void populateCaches() {

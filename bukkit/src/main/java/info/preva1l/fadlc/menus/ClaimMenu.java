@@ -262,7 +262,7 @@ public class ClaimMenu extends FastInv {
                     for (int x = -4; x <= 4; x++) {
                         int chunkX = playerChunkX + x, chunkZ = playerChunkZ + z;
                         chunkList.add(ClaimManager.getInstance()
-                                .getChunkAtChunk(chunkX, chunkZ, player.getWorld().getName()));
+                                .getChunkAt(chunkX, chunkZ, player.getWorld().getName()));
                     }
                 }
                 break;
@@ -271,7 +271,7 @@ public class ClaimMenu extends FastInv {
                     for (int z = -4; z <= 4; z++) {
                         int chunkX = playerChunkX + x, chunkZ = playerChunkZ + z;
                         chunkList.add(ClaimManager.getInstance()
-                                .getChunkAtChunk(chunkX, chunkZ, player.getWorld().getName()));
+                                .getChunkAt(chunkX, chunkZ, player.getWorld().getName()));
                     }
                 }
                 break;
@@ -280,7 +280,7 @@ public class ClaimMenu extends FastInv {
                     for (int x = 4; x >= -4; x--) {
                         int chunkX = playerChunkX + x, chunkZ = playerChunkZ + z;
                         chunkList.add(ClaimManager.getInstance()
-                                .getChunkAtChunk(chunkX, chunkZ, player.getWorld().getName()));
+                                .getChunkAt(chunkX, chunkZ, player.getWorld().getName()));
                     }
                 }
                 break;
@@ -289,7 +289,7 @@ public class ClaimMenu extends FastInv {
                     for (int z = 4; z >= -4; z--) {
                         int chunkX = playerChunkX + x, chunkZ = playerChunkZ + z;
                         chunkList.add(ClaimManager.getInstance()
-                                .getChunkAtChunk(chunkX, chunkZ, player.getWorld().getName()));
+                                .getChunkAt(chunkX, chunkZ, player.getWorld().getName()));
                     }
                 }
                 break;

@@ -17,6 +17,7 @@ import org.bukkit.scheduler.BukkitTask;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -32,19 +33,18 @@ public class PlayerListeners implements Listener {
             invalidateIfNoJoin.remove(e.getUniqueId());
         }, 1200L));
 
-        PersistenceManager.getInstance().get(OnlineUser.class, e.getUniqueId()).thenAccept(user -> {
-            OnlineUser onlineUser;
+        Optional<OnlineUser> user = PersistenceManager.getInstance().get(OnlineUser.class, e.getUniqueId()).join();
+        OnlineUser onlineUser;
 
-            if (user.isEmpty()) {
-                onlineUser = new BukkitUser(e.getName(), e.getUniqueId(), 0, true,
-                        true, true, MessageLocation.CHAT, 1); // todo: config first chunks
-                PersistenceManager.getInstance().save(OnlineUser.class, onlineUser);
-            } else {
-                onlineUser = user.get();
-            }
+        if (user.isEmpty()) {
+            onlineUser = new BukkitUser(e.getName(), e.getUniqueId(), 0, true,
+                    true, true, MessageLocation.CHAT, 1); // todo: config first chunks
+            PersistenceManager.getInstance().save(OnlineUser.class, onlineUser).join();
+        } else {
+            onlineUser = user.get();
+        }
 
-            userManager.cacheUser(onlineUser);
-        });
+        userManager.cacheUser(onlineUser);
     }
 
     @EventHandler
