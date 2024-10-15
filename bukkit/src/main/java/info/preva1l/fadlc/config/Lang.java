@@ -16,6 +16,7 @@ import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 @Getter
 @Configuration
@@ -56,7 +57,6 @@ public class Lang {
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public static class Prevention {
         private String placeBlocks = "&cYou cannot place blocks in &e%player%'s&c claim!";
-        private String breakBlocks = "&cYou cannot break blocks in &e%player%'s&c claim!";
         private String enter = "&cYou cannot enter &e%player%'s&c claim!";
     }
 
@@ -69,6 +69,64 @@ public class Lang {
         private String noPermission = "&c&l(!)&r &fInsufficient permission";
         private String unknownArgs = "&c&l(!)&r &fUnknown arguments.";
         private String mustBePlayer = "&c&l(!)&r &fYou must be a player to run this command.";
+    }
+
+    private GroupSettings groupSettings = new GroupSettings();
+
+    @Getter
+    @Configuration
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class GroupSettings {
+        private BreakBlocks breakBlocks = new BreakBlocks();
+
+        @Getter
+        @Configuration
+        @NoArgsConstructor(access = AccessLevel.PRIVATE)
+        public static class BreakBlocks {
+            private String name = "Break Blocks";
+            private List<String> description = List.of("Whether or not to allow", "creepers, endermen,", "wither & enderdragon to break blocks.");
+            private String message = "&cYou cannot break blocks in &e%player%'s&c claim!";
+        }
+    }
+
+    private ProfileFlags profileFlags = new ProfileFlags();
+
+    @Getter
+    @Configuration
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class ProfileFlags {
+        private EntityGriefing entityGriefing = new EntityGriefing();
+
+        @Getter
+        @Configuration
+        @NoArgsConstructor(access = AccessLevel.PRIVATE)
+        public static class EntityGriefing {
+            private String name = "Entity Griefing";
+            private List<String> description = List.of("Whether or not to allow", "creepers, endermen,", "wither & enderdragon to break blocks.");
+            private boolean enabledByDefault = false;
+        }
+
+        private ExplosionDamage explosionDamage = new ExplosionDamage();
+
+        @Getter
+        @Configuration
+        @NoArgsConstructor(access = AccessLevel.PRIVATE)
+        public static class ExplosionDamage {
+            private String name = "Explosion Damage";
+            private List<String> description = List.of("Whether or not to allow", "TNT, End Crystals & TNT Minecarts", "to break blocks.");
+            private boolean enabledByDefault = false;
+        }
+
+        private Pvp pvp = new Pvp();
+
+        @Getter
+        @Configuration
+        @NoArgsConstructor(access = AccessLevel.PRIVATE)
+        public static class Pvp {
+            private String name = "PvP";
+            private List<String> description = List.of("Whether or not to allow", "players to fight each other.");
+            private boolean enabledByDefault = false;
+        }
     }
 
     public static void sendMessage(CommandSender sender, String message) {

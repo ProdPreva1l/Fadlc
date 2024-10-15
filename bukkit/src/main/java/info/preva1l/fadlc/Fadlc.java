@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import info.preva1l.fadlc.api.FadlcAPI;
 import info.preva1l.fadlc.api.ImplFadlcAPI;
 import info.preva1l.fadlc.commands.ClaimCommand;
+import info.preva1l.fadlc.config.Lang;
 import info.preva1l.fadlc.config.particles.Particles;
 import info.preva1l.fadlc.config.sounds.Sounds;
 import info.preva1l.fadlc.jobs.ClaimBorderJob;
@@ -13,7 +14,9 @@ import info.preva1l.fadlc.listeners.PlayerListeners;
 import info.preva1l.fadlc.managers.*;
 import info.preva1l.fadlc.models.IClaimChunk;
 import info.preva1l.fadlc.models.claim.IClaim;
+import info.preva1l.fadlc.models.claim.settings.GroupSetting;
 import info.preva1l.fadlc.models.claim.settings.ProfileFlag;
+import info.preva1l.fadlc.registry.GroupSettingsRegistry;
 import info.preva1l.fadlc.registry.ProfileFlagsRegistry;
 import info.preva1l.fadlc.utils.Logger;
 import info.preva1l.fadlc.utils.Metrics;
@@ -122,20 +125,33 @@ public final class Fadlc extends JavaPlugin {
     }
 
     private void loadRegistries() {
-        ProfileFlagsRegistry.register( new ProfileFlag("exposion_damage",
-                "Allow Explosion Damage",
-                List.of("Whether or not to allow", "TNT, End Crystals & TNT Minecarts", "to break blocks."),
-                false));
+        Lang.ProfileFlags fConf = Lang.getInstance().getProfileFlags();
+        Stream.of(
+                new ProfileFlag("exposion_damage",
+                        fConf.getExplosionDamage().getName(),
+                        fConf.getExplosionDamage().getDescription(),
+                        fConf.getExplosionDamage().isEnabledByDefault()
+                ),
+                new ProfileFlag("entity_griefing",
+                        fConf.getEntityGriefing().getName(),
+                        fConf.getEntityGriefing().getDescription(),
+                        fConf.getEntityGriefing().isEnabledByDefault()
+                ),
+                new ProfileFlag("pvp",
+                        fConf.getPvp().getName(),
+                        fConf.getPvp().getDescription(),
+                        fConf.getPvp().isEnabledByDefault()
+                )
+        ).forEach(ProfileFlagsRegistry::register);
 
-        ProfileFlagsRegistry.register(new ProfileFlag("entity_griefing",
-                "Allow Entity Griefing",
-                List.of("Whether or not to allow", "creepers, endermen &", "to break blocks."),
-                false));
+        Lang.ProfileFlags gsConf = Lang.getInstance().getProfileFlags();
+        Stream.of(
+                new GroupSetting(
+                        "break_blocks",
+                        "",
 
-        ProfileFlagsRegistry.register(new ProfileFlag("pvp",
-                "PvP",
-                List.of(""),
-                false));
+                )
+        ).forEach(GroupSettingsRegistry::register);
     }
 
     private void populateCaches() {
