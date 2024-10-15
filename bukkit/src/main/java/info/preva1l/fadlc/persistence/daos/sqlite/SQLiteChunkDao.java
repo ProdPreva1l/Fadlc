@@ -1,6 +1,8 @@
 package info.preva1l.fadlc.persistence.daos.sqlite;
 
 import com.zaxxer.hikari.HikariDataSource;
+import info.preva1l.fadlc.Fadlc;
+import info.preva1l.fadlc.models.ChunkLoc;
 import info.preva1l.fadlc.models.ClaimChunk;
 import info.preva1l.fadlc.models.IClaimChunk;
 import info.preva1l.fadlc.persistence.Dao;
@@ -20,30 +22,25 @@ import java.util.UUID;
 public class SQLiteChunkDao implements Dao<IClaimChunk> {
     private final HikariDataSource dataSource;
 
-    /**
-     * Get an object from the database by its id.
-     *
-     * @param id the id of the object to get.
-     * @return an optional containing the object if it exists, or an empty optional if it does not.
-     */
     @Override
     public Optional<IClaimChunk> get(UUID id) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public Optional<IClaimChunk> get(String id) {
         try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement("""
-                        SELECT `uniqueId`, `world`, `x`, `z`, `server`, `timeClaimed`, `profile`
+                        SELECT `location`, `timeClaimed`, `profile`
                         FROM `chunks`
                         WHERE uniqueId=?;""")) {
-                statement.setString(1, id.toString());
+                statement.setString(1, id);
                 final ResultSet resultSet = statement.executeQuery();
                 if (resultSet.next()) {
-                    final UUID uuid = id;
-                    final String world = resultSet.getString("world");
-                    final int x = resultSet.getInt("x");
-                    final int z = resultSet.getInt("z");
-                    final String server = resultSet.getString("server");
+                    final ChunkLoc loc = Fadlc.i().getGson().fromJson(resultSet.getString("location"), ChunkLoc.class);
                     final long timeClaimed = resultSet.getLong("timeClaimed");
                     final int profile = resultSet.getInt("profile");
-                    return Optional.of(new ClaimChunk(x, z, world, server, uuid, timeClaimed, profile));
+                    return Optional.of(new ClaimChunk(loc, timeClaimed, profile));
                 }
             }
         } catch (SQLException e) {
@@ -62,18 +59,14 @@ public class SQLiteChunkDao implements Dao<IClaimChunk> {
         List<IClaimChunk> chunks = new ArrayList<>();
         try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement("""
-                        SELECT `uniqueId`, `world`, `x`, `z`, `server`, `timeClaimed`, `profile`
+                        SELECT `location`, `timeClaimed`, `profile`
                         FROM `chunks`;""")) {
                 final ResultSet resultSet = statement.executeQuery();
                 while (resultSet.next()) {
-                    final UUID uuid = UUID.fromString(resultSet.getString("uniqueId"));
-                    final String world = resultSet.getString("world");
-                    final int x = resultSet.getInt("x");
-                    final int z = resultSet.getInt("z");
-                    final String server = resultSet.getString("server");
+                    final ChunkLoc loc = Fadlc.i().getGson().fromJson(resultSet.getString("location"), ChunkLoc.class);
                     final long timeClaimed = resultSet.getLong("timeClaimed");
                     final int profile = resultSet.getInt("profile");
-                    chunks.add(new ClaimChunk(x, z, world, server, uuid, timeClaimed, profile));
+                    chunks.add(new ClaimChunk(loc, timeClaimed, profile));
                 }
             }
         } catch (SQLException e) {
@@ -92,17 +85,13 @@ public class SQLiteChunkDao implements Dao<IClaimChunk> {
         try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement("""
                         INSERT INTO `chunks`
-                        (`uniqueId`, `world`, `x`, `z`, `server`, `timeClaimed`, `profile`)
+                        (`location`, `timeClaimed`, `profile`)
                         VALUES (?,?,?,?,?,?,?)
                         ON CONFLICT(`uniqueId`) DO UPDATE SET
                             `profile` = excluded.`profile`;""")) {
-                statement.setString(1, chunk.getUniqueId().toString());
-                statement.setString(2, chunk.getWorldName());
-                statement.setInt(3, chunk.getChunkX());
-                statement.setInt(4, chunk.getChunkZ());
-                statement.setString(5, chunk.getServer());
-                statement.setLong(6, chunk.getClaimedSince());
-                statement.setInt(7, chunk.getProfileId());
+                statement.setString(1, Fadlc.i().getGson().toJson(chunk.getLoc()));
+                statement.setLong(2, chunk.getClaimedSince());
+                statement.setInt(3, chunk.getProfileId());
                 statement.execute();
             } catch (Exception e) {
                 Logger.severe("Failed to save!", e);

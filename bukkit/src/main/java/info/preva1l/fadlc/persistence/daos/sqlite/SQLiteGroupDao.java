@@ -7,9 +7,11 @@ import info.preva1l.fadlc.Fadlc;
 import info.preva1l.fadlc.models.claim.IProfileGroup;
 import info.preva1l.fadlc.models.claim.ProfileGroup;
 import info.preva1l.fadlc.models.claim.settings.EGroupSetting;
+import info.preva1l.fadlc.models.claim.settings.GroupSetting;
 import info.preva1l.fadlc.models.user.OfflineUser;
 import info.preva1l.fadlc.models.user.User;
 import info.preva1l.fadlc.persistence.Dao;
+import info.preva1l.fadlc.registry.GroupSettingsRegistry;
 import info.preva1l.fadlc.utils.Logger;
 import lombok.AllArgsConstructor;
 
@@ -18,10 +20,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @AllArgsConstructor
 public class SQLiteGroupDao implements Dao<IProfileGroup> {
@@ -50,7 +49,7 @@ public class SQLiteGroupDao implements Dao<IProfileGroup> {
                     final int id = resultSet.getInt("id");
                     final String name = resultSet.getString("name");
                     final List<User> users = gson.fromJson(resultSet.getString("users"), usersType);
-                    final Map<EGroupSetting, Boolean> flags = gson.fromJson(resultSet.getString("settings"), settingsType);
+                    final Map<GroupSetting, Boolean> flags = settingsDeserialize(gson.fromJson(resultSet.getString("settings"), settingsType));
                     return Optional.of(new ProfileGroup(uuid, id, name, users, flags));
                 }
             }
@@ -86,9 +85,8 @@ public class SQLiteGroupDao implements Dao<IProfileGroup> {
                             `name` = excluded.`name`,
                             `users` = excluded.`users`,
                             `settings` = excluded.`settings`;""")) {
-
                 String users = Fadlc.i().getGson().toJson(group.getUsers());
-                String flags = Fadlc.i().getGson().toJson(group.getSettings());
+                String flags = Fadlc.i().getGson().toJson(settingsSerialize(group.getSettings()), settingsType);
                 statement.setString(1, group.getUniqueId().toString());
                 statement.setInt(2, group.getId());
                 statement.setString(3, group.getName());
@@ -122,5 +120,21 @@ public class SQLiteGroupDao implements Dao<IProfileGroup> {
     @Override
     public void delete(IProfileGroup iProfileGroup) {
 
+    }
+
+    private Map<GroupSetting, Boolean> settingsDeserialize(Map<String, Boolean> map) {
+        Map<GroupSetting, Boolean> result = new HashMap<>();
+        for (String setting : map.keySet()) {
+            result.put(GroupSettingsRegistry.get(setting), map.get(setting));
+        }
+        return result;
+    }
+
+    private Map<String, Boolean> settingsSerialize(Map<GroupSetting, Boolean> map) {
+        Map<String, Boolean> result = new HashMap<>();
+        for (GroupSetting setting : map.keySet()) {
+            result.put(setting.getId(), map.get(setting));
+        }
+        return result;
     }
 }

@@ -9,6 +9,7 @@ import info.preva1l.fadlc.models.claim.ClaimProfile;
 import info.preva1l.fadlc.models.claim.IClaimProfile;
 import info.preva1l.fadlc.models.claim.IProfileGroup;
 import info.preva1l.fadlc.models.claim.settings.EProfileFlag;
+import info.preva1l.fadlc.models.claim.settings.ProfileFlag;
 import info.preva1l.fadlc.persistence.Dao;
 import info.preva1l.fadlc.utils.Logger;
 import lombok.AllArgsConstructor;
@@ -45,11 +46,11 @@ public class SQLiteProfileDao implements Dao<IClaimProfile> {
                 final ResultSet resultSet = statement.executeQuery();
                 if (resultSet.next()) {
                     final UUID uuid = uniqueId;
-                    final UUID parent = UUID.fromString(resultSet.getString("parent"));
                     final String name = resultSet.getString("name");
+                    final UUID parent = UUID.fromString(resultSet.getString("parent"));
                     final int id = resultSet.getInt("id");
                     final Map<Integer, IProfileGroup> groups = groupDeserialize(gson.fromJson(resultSet.getString("groups"), stringListType));
-                    final Map<EProfileFlag, Boolean> flags = gson.fromJson(resultSet.getString("flags"), flagsType);
+                    final Map<ProfileFlag, Boolean> flags = gson.fromJson(resultSet.getString("flags"), flagsType);
                     final String border = resultSet.getString("border");
                     return Optional.of(new ClaimProfile(parent, uuid, name, id, Material.BLUE_WOOL, groups, flags, border));
                 }

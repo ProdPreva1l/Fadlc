@@ -6,6 +6,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import info.preva1l.fadlc.Fadlc;
 import info.preva1l.fadlc.managers.ClaimManager;
 import info.preva1l.fadlc.managers.PersistenceManager;
+import info.preva1l.fadlc.models.ChunkLoc;
 import info.preva1l.fadlc.models.IClaimChunk;
 import info.preva1l.fadlc.models.claim.Claim;
 import info.preva1l.fadlc.models.claim.IClaim;
@@ -47,7 +48,7 @@ public class SQLiteClaimDao implements Dao<IClaim> {
                 if (resultSet.next()) {
                     final UUID ownerUUID = id;
                     final String ownerName = resultSet.getString("ownerUsername");
-                    final Map<UUID, Integer> chunks =
+                    final Map<ChunkLoc, Integer> chunks =
                             chunkDeserialize(gson.fromJson(resultSet.getString("chunks"), stringListType));
                     final Map<Integer, IClaimProfile> profiles =
                             profileDeserialize(gson.fromJson(resultSet.getString("profiles"), stringListType));
@@ -77,7 +78,7 @@ public class SQLiteClaimDao implements Dao<IClaim> {
                 while (resultSet.next()) {
                     final UUID ownerUUID = UUID.fromString(resultSet.getString("ownerUUID"));
                     final String ownerName = resultSet.getString("ownerUsername");
-                    final Map<UUID, Integer> chunks =
+                    final Map<ChunkLoc, Integer> chunks =
                             chunkDeserialize(gson.fromJson(resultSet.getString("chunks"), stringListType));
                     final Map<Integer, IClaimProfile> profiles =
                             profileDeserialize(gson.fromJson(resultSet.getString("profiles"), stringListType));
@@ -162,21 +163,21 @@ public class SQLiteClaimDao implements Dao<IClaim> {
         return ret;
     }
 
-    private List<String> chunkSerialize(Map<UUID, Integer> profiles) {
+    private List<String> chunkSerialize(Map<ChunkLoc, Integer> profiles) {
         List<String> list = new ArrayList<>();
-        for (UUID chunk : profiles.keySet()) {
-            list.add(chunk.toString());
+        for (ChunkLoc chunk : profiles.keySet()) {
+            list.add(Fadlc.i().getGson().toJson(chunk));
         }
         return list;
     }
 
     @Blocking
-    private Map<UUID, Integer> chunkDeserialize(List<String> profiles) {
-        Map<UUID, Integer> ret = new HashMap<>();
-        for (String strUuid : profiles) {
-            UUID uuid = UUID.fromString(strUuid);
-            IClaimChunk chunk = ClaimManager.getInstance().getChunk(uuid);
-            ret.put(chunk.getUniqueId(), chunk.getProfileId());
+    private Map<ChunkLoc, Integer> chunkDeserialize(List<String> profiles) {
+        Map<ChunkLoc, Integer> ret = new HashMap<>();
+        for (String locStr : profiles) {
+            ChunkLoc loc = Fadlc.i().getGson().fromJson(locStr, ChunkLoc.class);
+            IClaimChunk chunk = ClaimManager.getInstance().getChunk(loc);
+            ret.put(chunk.getLoc(), chunk.getProfileId());
         }
         return ret;
     }
