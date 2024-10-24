@@ -6,26 +6,27 @@ import org.jetbrains.annotations.ApiStatus;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 
 public class GroupSettingsRegistry {
-    public static final GroupSetting PLACE_BLOCKS = get("place_blocks");
-    public static final GroupSetting BREAK_BLOCKS = get("break_blocks");
-    public static final GroupSetting ENTER = get("enter");
+    public static final Supplier<GroupSetting> PLACE_BLOCKS = () -> get("place_blocks");
+    public static final Supplier<GroupSetting> BREAK_BLOCKS = () -> get("break_blocks");
+    public static final Supplier<GroupSetting> ENTER = () -> get("enter");
 
     private static Map<String, GroupSetting> settings = new ConcurrentHashMap<>();
 
-    public static void register(String name, GroupSetting value) {
+    public static void register(GroupSetting value) {
         if (settings == null) {
             settings = new ConcurrentHashMap<>();
         }
-        settings.put(name, value);
+        settings.put(value.getId().toLowerCase(), value);
     }
 
     public static GroupSetting get(String name) {
         if (settings == null) {
             settings = new ConcurrentHashMap<>();
         }
-        return settings.get(name);
+        return settings.get(name.toLowerCase());
     }
 
     public static Collection<GroupSetting> getAll() {

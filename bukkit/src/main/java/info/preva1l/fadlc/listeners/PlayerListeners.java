@@ -50,7 +50,9 @@ public class PlayerListeners implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent e) {
         BukkitTask task = invalidateIfNoJoin.remove(e.getPlayer().getUniqueId());
-        task.cancel();
+        if (task != null) {
+            task.cancel();
+        }
     }
 
     @EventHandler

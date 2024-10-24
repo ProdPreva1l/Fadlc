@@ -21,31 +21,31 @@ public class ProfileGroup implements IProfileGroup {
 
     public static ProfileGroup rankOne() {
         Config.Groups.First conf = Config.getInstance().getGroupDefaults().getFirst();
-        Map<GroupSetting, Boolean> settings = conf.getSettings();
+        Map<GroupSetting, Boolean> settings = conf.getRealSettings();
         return new ProfileGroup(UUID.randomUUID(), 1, "Default", List.of(), settings);
     }
 
     public static ProfileGroup rankTwo() {
         Config.Groups.Second conf = Config.getInstance().getGroupDefaults().getSecond();
-        Map<GroupSetting, Boolean> settings = conf.getSettings();
+        Map<GroupSetting, Boolean> settings = conf.getRealSettings();
         return new ProfileGroup(UUID.randomUUID(), 2, "Rank 2", List.of(), settings);
     }
 
     public static ProfileGroup rankThree() {
         Config.Groups.Third conf = Config.getInstance().getGroupDefaults().getThird();
-        Map<GroupSetting, Boolean> settings = conf.getSettings();
+        Map<GroupSetting, Boolean> settings = conf.getRealSettings();
         return new ProfileGroup(UUID.randomUUID(), 3, "Rank 3", List.of(), settings);
     }
 
     public static ProfileGroup rankFour() {
         Config.Groups.Fourth conf = Config.getInstance().getGroupDefaults().getFourth();
-        Map<GroupSetting, Boolean> settings = conf.getSettings();
+        Map<GroupSetting, Boolean> settings = conf.getRealSettings();
         return new ProfileGroup(UUID.randomUUID(), 4, "Rank 4", List.of(), settings);
     }
 
     public static ProfileGroup rankFive() {
         Config.Groups.Fifth conf = Config.getInstance().getGroupDefaults().getFifth();
-        Map<GroupSetting, Boolean> settings = conf.getSettings();
+        Map<GroupSetting, Boolean> settings = conf.getRealSettings();
         return new ProfileGroup(UUID.randomUUID(), 5, "Rank 5", List.of(), settings);
     }
 }

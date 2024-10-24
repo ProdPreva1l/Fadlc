@@ -56,7 +56,6 @@ public class Lang {
     @Configuration
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public static class Prevention {
-        private String placeBlocks = "&cYou cannot place blocks in &e%player%'s&c claim!";
         private String enter = "&cYou cannot enter &e%player%'s&c claim!";
     }
 
@@ -77,6 +76,17 @@ public class Lang {
     @Configuration
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public static class GroupSettings {
+        private Enter enter = new Enter();
+
+        @Getter
+        @Configuration
+        @NoArgsConstructor(access = AccessLevel.PRIVATE)
+        public static class Enter {
+            private String name = "Enter Claim";
+            private List<String> description = List.of("Whether or not to allow", "players to enter your claim.");
+            private String message = "&cYou cannot enter &e%player%'s&c claim!";
+        }
+
         private BreakBlocks breakBlocks = new BreakBlocks();
 
         @Getter
@@ -84,8 +94,19 @@ public class Lang {
         @NoArgsConstructor(access = AccessLevel.PRIVATE)
         public static class BreakBlocks {
             private String name = "Break Blocks";
-            private List<String> description = List.of("Whether or not to allow", "creepers, endermen,", "wither & enderdragon to break blocks.");
+            private List<String> description = List.of("Whether or not to allow", "players to break blocks.");
             private String message = "&cYou cannot break blocks in &e%player%'s&c claim!";
+        }
+
+        private PlaceBlocks placeBlocks = new PlaceBlocks();
+
+        @Getter
+        @Configuration
+        @NoArgsConstructor(access = AccessLevel.PRIVATE)
+        public static class PlaceBlocks {
+            private String name = "Place Blocks";
+            private List<String> description = List.of("Whether or not to allow", "players to place blocks.");
+            private String message = "&cYou cannot place blocks in &e%player%'s&c claim!";
         }
     }
 
@@ -130,6 +151,7 @@ public class Lang {
     }
 
     public static void sendMessage(CommandSender sender, String message) {
+        if (message.isEmpty()) return;
         if (sender instanceof Player player) {
             UserManager.getInstance().getUser(player.getUniqueId()).ifPresent(user -> {
                 user.sendMessage(message);

@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.Map;
 
 @Getter
@@ -77,12 +78,12 @@ public class Config {
         @Getter
         @Configuration
         @NoArgsConstructor(access = AccessLevel.PRIVATE)
-        public static class First {
+        public static class First extends GroupConfig {
             private String name = "Default";
-            private Map<GroupSetting, Boolean> settings = Map.of(
-                    GroupSettingsRegistry.BREAK_BLOCKS, false,
-                    GroupSettingsRegistry.PLACE_BLOCKS, false,
-                    GroupSettingsRegistry.ENTER, true
+            private Map<String, Boolean> settings = Map.of(
+                    GroupSettingsRegistry.BREAK_BLOCKS.get().getId(), false,
+                    GroupSettingsRegistry.PLACE_BLOCKS.get().getId(), false,
+                    GroupSettingsRegistry.ENTER.get().getId(), true
             );
         }
 
@@ -91,12 +92,12 @@ public class Config {
         @Getter
         @Configuration
         @NoArgsConstructor(access = AccessLevel.PRIVATE)
-        public static class Second {
+        public static class Second extends GroupConfig {
             private String name = "Group 2";
-            private Map<GroupSetting, Boolean> settings = Map.of(
-                    GroupSettingsRegistry.BREAK_BLOCKS, false,
-                    GroupSettingsRegistry.PLACE_BLOCKS, false,
-                    GroupSettingsRegistry.ENTER, true
+            private Map<String, Boolean> settings = Map.of(
+                    GroupSettingsRegistry.BREAK_BLOCKS.get().getId(), false,
+                    GroupSettingsRegistry.PLACE_BLOCKS.get().getId(), false,
+                    GroupSettingsRegistry.ENTER.get().getId(), true
             );
         }
 
@@ -105,12 +106,12 @@ public class Config {
         @Getter
         @Configuration
         @NoArgsConstructor(access = AccessLevel.PRIVATE)
-        public static class Third {
+        public static class Third extends GroupConfig {
             private String name = "Group 3";
-            private Map<GroupSetting, Boolean> settings = Map.of(
-                    GroupSettingsRegistry.BREAK_BLOCKS, true,
-                    GroupSettingsRegistry.PLACE_BLOCKS, true,
-                    GroupSettingsRegistry.ENTER, true
+            private Map<String, Boolean> settings = Map.of(
+                    GroupSettingsRegistry.BREAK_BLOCKS.get().getId(), true,
+                    GroupSettingsRegistry.PLACE_BLOCKS.get().getId(), true,
+                    GroupSettingsRegistry.ENTER.get().getId(), true
             );
         }
 
@@ -119,12 +120,12 @@ public class Config {
         @Getter
         @Configuration
         @NoArgsConstructor(access = AccessLevel.PRIVATE)
-        public static class Fourth {
+        public static class Fourth extends GroupConfig {
             private String name = "Group 4";
-            private Map<GroupSetting, Boolean> settings = Map.of(
-                    GroupSettingsRegistry.BREAK_BLOCKS, true,
-                    GroupSettingsRegistry.PLACE_BLOCKS, true,
-                    GroupSettingsRegistry.ENTER, true
+            private Map<String, Boolean> settings = Map.of(
+                    GroupSettingsRegistry.BREAK_BLOCKS.get().getId(), true,
+                    GroupSettingsRegistry.PLACE_BLOCKS.get().getId(), true,
+                    GroupSettingsRegistry.ENTER.get().getId(), true
             );
         }
 
@@ -133,12 +134,12 @@ public class Config {
         @Getter
         @Configuration
         @NoArgsConstructor(access = AccessLevel.PRIVATE)
-        public static class Fifth {
+        public static class Fifth extends GroupConfig {
             private String name = "Group 5";
-            private Map<GroupSetting, Boolean> settings = Map.of(
-                    GroupSettingsRegistry.BREAK_BLOCKS, true,
-                    GroupSettingsRegistry.PLACE_BLOCKS, true,
-                    GroupSettingsRegistry.ENTER, true
+            private Map<String, Boolean> settings = Map.of(
+                    GroupSettingsRegistry.BREAK_BLOCKS.get().getId(), true,
+                    GroupSettingsRegistry.PLACE_BLOCKS.get().getId(), true,
+                    GroupSettingsRegistry.ENTER.get().getId(), true
             );
         }
 
@@ -190,5 +191,17 @@ public class Config {
         }
 
         return instance;
+    }
+
+    public abstract static class GroupConfig {
+        public abstract Map<String, Boolean> getSettings();
+
+        public Map<GroupSetting, Boolean> getRealSettings() {
+            Map<GroupSetting, Boolean> map = new HashMap<>();
+            for (String key : getSettings().keySet()) {
+                map.put(GroupSettingsRegistry.get(key), getSettings().get(key));
+            }
+            return map;
+        }
     }
 }

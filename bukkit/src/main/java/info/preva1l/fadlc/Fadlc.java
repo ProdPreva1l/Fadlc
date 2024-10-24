@@ -45,7 +45,6 @@ public final class Fadlc extends JavaPlugin {
     @Getter private Random random;
 
     private ClaimBorderJob borderJob;
-
     private Metrics metrics;
 
     @Override
@@ -54,6 +53,8 @@ public final class Fadlc extends JavaPlugin {
         gson = new Gson();
         random = new Random(System.currentTimeMillis());
         instance = this;
+
+        loadRegistries();
 
         // Init the managers
         Logger.info("Initializing Managers...");
@@ -66,8 +67,6 @@ public final class Fadlc extends JavaPlugin {
 
         Sounds.update();
         Particles.update();
-
-        loadRegistries();
 
         loadMenus();
 
@@ -144,12 +143,22 @@ public final class Fadlc extends JavaPlugin {
                 )
         ).forEach(ProfileFlagsRegistry::register);
 
-        Lang.ProfileFlags gsConf = Lang.getInstance().getProfileFlags();
+        Lang.GroupSettings gsConf = Lang.getInstance().getGroupSettings();
         Stream.of(
                 new GroupSetting(
                         "break_blocks",
-                        "",
-
+                        gsConf.getBreakBlocks().getName(),
+                        gsConf.getBreakBlocks().getDescription()
+                ),
+                new GroupSetting(
+                        "place_blocks",
+                        gsConf.getPlaceBlocks().getName(),
+                        gsConf.getPlaceBlocks().getDescription()
+                ),
+                new GroupSetting(
+                        "enter",
+                        gsConf.getPlaceBlocks().getName(),
+                        gsConf.getPlaceBlocks().getDescription()
                 )
         ).forEach(GroupSettingsRegistry::register);
     }

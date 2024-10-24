@@ -27,7 +27,6 @@ import org.bukkit.event.player.PlayerMoveEvent;
 public class ClaimListeners implements Listener {
     private final ClaimManager claimManager;
 
-
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private boolean isActionAllowed(OnlineUser user, ILoc location, GroupSetting setting) {
         return FadlcAPI.getInstance().isActionAllowed(user, location, setting);
@@ -36,24 +35,24 @@ public class ClaimListeners implements Listener {
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
         OnlineUser user = UserManager.getInstance().getUser(event.getPlayer().getUniqueId()).orElseThrow();
-        if (isActionAllowed(user, Loc.fromBukkit(event.getBlock().getLocation()), GroupSettingsRegistry.PLACE_BLOCKS)) {
+        if (isActionAllowed(user, Loc.fromBukkit(event.getBlock().getLocation()), GroupSettingsRegistry.PLACE_BLOCKS.get())) {
             return;
         }
         event.setCancelled(true);
 
-        Lang.sendMessage(event.getPlayer(), Lang.getInstance().getPrevention().getPlaceBlocks()
+        Lang.sendMessage(event.getPlayer(), Lang.getInstance().getGroupSettings().getPlaceBlocks().getMessage()
                 .replace("%player%", user.getName()));
     }
 
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
         OnlineUser user = UserManager.getInstance().getUser(event.getPlayer().getUniqueId()).orElseThrow();
-        if (isActionAllowed(user, Loc.fromBukkit(event.getBlock().getLocation()), GroupSettingsRegistry.BREAK_BLOCKS)) {
+        if (isActionAllowed(user, Loc.fromBukkit(event.getBlock().getLocation()), GroupSettingsRegistry.BREAK_BLOCKS.get())) {
             return;
         }
         event.setCancelled(true);
 
-        Lang.sendMessage(event.getPlayer(), Lang.getInstance().getPrevention().getBreakBlocks()
+        Lang.sendMessage(event.getPlayer(), Lang.getInstance().getGroupSettings().getBreakBlocks().getMessage()
                 .replace("%player%", user.getName()));
     }
 
@@ -82,7 +81,7 @@ public class ClaimListeners implements Listener {
         }
 
         if (toClaim != null) {
-            if (!isActionAllowed(user, Loc.fromBukkit(e.getTo()), GroupSettingsRegistry.ENTER)) {
+            if (!isActionAllowed(user, Loc.fromBukkit(e.getTo()), GroupSettingsRegistry.ENTER.get())) {
                 e.setCancelled(true);
                 return;
             }
